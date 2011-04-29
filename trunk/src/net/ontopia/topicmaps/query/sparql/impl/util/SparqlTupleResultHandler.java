@@ -8,7 +8,7 @@ import org.openrdf.query.TupleQueryResultHandler;
 import org.openrdf.query.TupleQueryResultHandlerException;
 
 public class SparqlTupleResultHandler implements TupleQueryResultHandler,
-		OntopiaResultHandler<String, BindingSet> {
+		OntopiaResultHandler<List<BindingSet>> {
 
 	private List<String> columnNames;
 	private List<BindingSet> rows;
