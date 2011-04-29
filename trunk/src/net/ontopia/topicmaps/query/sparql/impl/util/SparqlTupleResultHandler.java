@@ -7,8 +7,7 @@ import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQueryResultHandler;
 import org.openrdf.query.TupleQueryResultHandlerException;
 
-public class SparqlTupleResultHandler implements TupleQueryResultHandler,
-		OntopiaResultHandler<List<BindingSet>> {
+public class SparqlTupleResultHandler implements TupleQueryResultHandler, OntopiaResultHandler<List<BindingSet>> {
 
 	private List<String> columnNames;
 	private List<BindingSet> rows;
@@ -33,8 +32,7 @@ public class SparqlTupleResultHandler implements TupleQueryResultHandler,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * net.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler#close()
+	 * @see net.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler#close()
 	 */
 	public void close() {
 		columnNames = null;
@@ -45,8 +43,7 @@ public class SparqlTupleResultHandler implements TupleQueryResultHandler,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seenet.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler#
-	 * getColumnNames()
+	 * @seenet.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler# getColumnNames()
 	 */
 	public List<String> getColumnNames() {
 		return columnNames;
@@ -55,12 +52,9 @@ public class SparqlTupleResultHandler implements TupleQueryResultHandler,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * net.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler#getRows
-	 * ()
+	 * @see net.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler#getRows ()
 	 */
 	public List<BindingSet> getRows() {
-		// TODO list<Object>??
 		return rows;
 	}
 
