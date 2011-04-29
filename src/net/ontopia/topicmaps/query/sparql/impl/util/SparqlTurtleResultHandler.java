@@ -1,6 +1,8 @@
 package net.ontopia.topicmaps.query.sparql.impl.util;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -14,14 +16,18 @@ import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.turtle.TurtleUtil;
 
-public class SparqlTurtleResultHandler implements RDFHandler {
+public class SparqlTurtleResultHandler implements RDFHandler,
+		OntopiaResultHandler<String, String[]> {
 
 	private static final String INDENT = "   ";
+	public static final String SERIALIZATION_FORMAT = "Turtle";
 	private StringBuilder builder;
 	private boolean ended;
 	private Resource lastSubject;
 	private Object lastPredicate;
 	private Map<String, String> namespaces;
+	private List<String[]> rows;
+	private List<String> columnNames;
 
 	public SparqlTurtleResultHandler() {
 		builder = new StringBuilder();
@@ -29,10 +35,16 @@ public class SparqlTurtleResultHandler implements RDFHandler {
 		lastSubject = null;
 		lastPredicate = null;
 		namespaces = new LinkedHashMap<String, String>();
+		columnNames = new ArrayList<String>();
+		rows = new ArrayList<String[]>();
 	}
 
 	public void endRDF() throws RDFHandlerException {
 		closeLastSubject();
+
+		columnNames.add(SERIALIZATION_FORMAT + " result: ");
+		String[] row = new String[] { builder.toString() };
+		rows.add(row);
 	}
 
 	public void handleComment(String comment) throws RDFHandlerException {
@@ -194,10 +206,21 @@ public class SparqlTurtleResultHandler implements RDFHandler {
 		// TODO co sem?
 	}
 
-	public String getDocument() {
+	public void close() {
+		columnNames = null;
+		rows = null;
+		// TODO Auto-generated method stub
+
+	}
+
+	public List<String> getColumnNames() {
+		return columnNames;
+	}
+
+	public List<String[]> getRows() {
 		// TODO tahle metoda by mìla mít interface
 		// TODO check complete
-		return builder.toString();
+		return rows;
 	}
 
 }

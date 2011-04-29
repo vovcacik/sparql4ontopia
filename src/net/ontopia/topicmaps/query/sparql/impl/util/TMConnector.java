@@ -275,7 +275,7 @@ public class TMConnector {
 				queryType = TupleQuery.class;
 				if (demandType.equals("sparql"))
 					// tq.evaluate(new SPARQLResultsCSVWriter(out));
-					tq.evaluate(new SPARQLResultHandler());
+					tq.evaluate(new SparqlTupleResultHandler());
 				else if (demandType.equals(SPARQLResultFormat.JSON))
 					tq.evaluate(new SPARQLResultsJSONWriter(out));
 				else if (demandType.equals(SPARQLResultFormat.XML))
