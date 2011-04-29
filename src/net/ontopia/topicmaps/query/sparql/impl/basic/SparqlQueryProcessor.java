@@ -85,7 +85,6 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		}
-
 		logger.info("SPARQL query processor initialized.");
 	}
 
@@ -124,7 +123,7 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 				QueryTracer.enterOrderBy();
 				SparqlTupleResultHandler handler = new SparqlTupleResultHandler();
 				tq.evaluate(handler);
-				return new SparqlTupleQueryResult(handler);
+				return new SparqlTupleQueryResult(handler, topicMapSystem, topicMap);
 				// TODO proè to dìlám pøes handler zkusit pøímo na výsledek?
 
 			} else {
@@ -160,55 +159,6 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 		}
 		return null;
 
-	}
-
-	/**
-	 * TODO doc
-	 */
-	@SuppressWarnings("null")
-	public QueryResultIF executeTuple(String query) throws InvalidQueryException {
-		TupleQuery tq = null;
-		RepositoryConnection con = null;
-		SparqlTupleResultHandler handler = new SparqlTupleResultHandler();
-
-		try {
-			con = repository.getConnection();
-			tq = con.prepareTupleQuery(QueryLanguage.SPARQL, query, null);
-			if (baseIRI != null) {
-				// TODO co tohle dìlá?
-				// assure that only the graph baseIRI can be queried
-				DatasetImpl dataSet = new DatasetImpl();
-				dataSet.addDefaultGraph(con.getValueFactory().createURI(baseIRI));
-				tq.setDataset(dataSet);
-			}
-			// ArrayList<String> list = new ArrayList<String>();
-			// list.add("list");
-			// String[] array = { "a", "b", "c" };
-			// QueryTracer.trace("1", array);
-			// QueryTracer.enter(list);
-			// QueryTracer.leave(list);
-			QueryTracer.startQuery();
-			QueryTracer.trace("Length of evaluate() method in seconds", new String[0]);
-			QueryTracer.enterOrderBy();
-			tq.evaluate(handler);
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		} catch (MalformedQueryException e) {
-			e.printStackTrace();
-		} catch (QueryEvaluationException e) {
-			e.printStackTrace();
-		} catch (TupleQueryResultHandlerException e) {
-			e.printStackTrace();
-		} finally {
-			QueryTracer.leaveOrderBy();
-			QueryTracer.endQuery();
-			try {
-				con.close();
-			} catch (RepositoryException e) {
-				e.printStackTrace();
-			}
-		}
-		return new SparqlTupleQueryResult(handler);
 	}
 
 	/**
