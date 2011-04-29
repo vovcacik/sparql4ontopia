@@ -1,10 +1,9 @@
 package net.ontopia.topicmaps.query.sparql.impl.basic;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.ontopia.topicmaps.query.core.QueryResultIF;
-import net.ontopia.topicmaps.query.sparql.impl.util.SparqlTurtleResultHandler;
+import net.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -13,19 +12,17 @@ public class SparqlGraphQueryResult implements QueryResultIF {
 	private List<String> columnNames;
 	private List<String[]> rows;
 	private int currentRowIndex;
+	private OntopiaResultHandler<String, String[]> handler;
 
-	public SparqlGraphQueryResult(SparqlTurtleResultHandler handler) {
-		columnNames = new ArrayList<String>();
-		columnNames.add("Document");
-
-		rows = new ArrayList<String[]>();
-		String escapedDoc = StringEscapeUtils.escapeHtml(handler.getDocument());
-		rows.add(new String[] { "<pre>" + escapedDoc + "</pre>" });
-
+	public SparqlGraphQueryResult(OntopiaResultHandler<String, String[]> handler) {
 		currentRowIndex = -1;
+		this.columnNames = handler.getColumnNames();
+		this.rows = handler.getRows();
+		this.handler = handler;
 	}
 
 	public void close() {
+		handler.close();
 		columnNames = null;
 		rows = null;
 	}
@@ -44,8 +41,13 @@ public class SparqlGraphQueryResult implements QueryResultIF {
 
 	public Object getValue(int ix) {
 		String[] row = rows.get(currentRowIndex);
-		return row[ix];
+		return escape(row[ix]);
 
+	}
+
+	private String escape(String string) {
+		String escapedStr = StringEscapeUtils.escapeHtml(string);
+		return "<pre>" + escapedStr + "</pre>";
 	}
 
 	public Object getValue(String colname) {
@@ -53,7 +55,12 @@ public class SparqlGraphQueryResult implements QueryResultIF {
 	}
 
 	public Object[] getValues() {
-		return rows.get(currentRowIndex);
+		int size = columnNames.size();
+		Object[] row = new Object[size];
+		for (int i = 0; i < size; i++) {
+			row[i] = getValue(i);
+		}
+		return row;
 	}
 
 	public Object[] getValues(Object[] values) {

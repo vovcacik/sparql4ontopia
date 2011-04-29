@@ -3,7 +3,7 @@ package net.ontopia.topicmaps.query.sparql.impl.basic;
 import java.util.List;
 
 import net.ontopia.topicmaps.query.core.QueryResultIF;
-import net.ontopia.topicmaps.query.sparql.impl.util.SPARQLResultHandler;
+import net.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler;
 
 import org.openrdf.model.Value;
 import org.openrdf.query.BindingSet;
@@ -13,6 +13,7 @@ public class SparqlTupleQueryResult implements QueryResultIF {
 	private int currentRowIndex;
 	private List<String> columnNames;
 	private List<BindingSet> rows;
+	private OntopiaResultHandler<String, BindingSet> handler;
 
 	/**
 	 * constructor
@@ -20,14 +21,15 @@ public class SparqlTupleQueryResult implements QueryResultIF {
 	 * @param
 	 */
 
-	public SparqlTupleQueryResult(SPARQLResultHandler handler) {
+	public SparqlTupleQueryResult(OntopiaResultHandler<String, BindingSet> handler) {
 		this.currentRowIndex = -1;
 		this.columnNames = handler.getColumnNames();
 		this.rows = handler.getRows();
-		// TODO close handler here;
+		this.handler = handler;
 	}
 
 	public void close() {
+		handler.close();
 		columnNames = null;
 		rows = null;
 	}
@@ -41,11 +43,7 @@ public class SparqlTupleQueryResult implements QueryResultIF {
 	}
 
 	public int getIndex(String colname) {
-		if (columnNames.contains(colname)) {
-			return columnNames.indexOf(colname);
-		} else {
-			return -1;
-		}
+		return columnNames.indexOf(colname);
 	}
 
 	public Object getValue(int ix) {
