@@ -50,7 +50,8 @@ public class SparqlTupleQueryResult extends SparqlAbstractQueryResult {
 		BindingSet row = rows.get(currentRowIndex);
 		Value value = row.getValue(colname);
 
-		// return value candidates
+		// stringValue may be item identifier URL which can be resolved to TMObjectIF (usually TopicIF) or literal
+		// Affects displaying result in web interface
 		String stringValue = value.stringValue();
 		TMObjectIF object = getObjectByItemIdentifier(stringValue);
 
