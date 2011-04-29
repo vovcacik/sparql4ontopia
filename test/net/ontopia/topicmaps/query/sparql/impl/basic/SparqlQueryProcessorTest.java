@@ -84,8 +84,8 @@ public class SparqlQueryProcessorTest extends TestCase {
 				+ "@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .\n"
 				+ "@prefix o: &lt;http://psi.ontopedia.net/&gt; .\n"
 				+ "o:Puccini &lt;http://xmlns.com/foaf/0.1/name&gt; &quot;Giacomo Puccini&quot;^^xsd:string ,\n"
-				+ "      &quot;Puccini&quot;^^xsd:string ,\n"
-				+ "      &quot;Puccini, Giacomo&quot;^^xsd:string .\n" + "</pre>";
+				+ "      &quot;Puccini, Giacomo&quot;^^xsd:string ,\n"
+				+ "      &quot;Puccini&quot;^^xsd:string .\n" + "</pre>";
 		try {
 			QueryResultIF result = processor.execute(query);
 			assertEquals(header, result.getColumnName(0));
