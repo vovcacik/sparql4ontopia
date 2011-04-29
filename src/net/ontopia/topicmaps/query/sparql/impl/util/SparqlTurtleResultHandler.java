@@ -16,21 +16,34 @@ import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.turtle.TurtleUtil;
 
+/**
+ * This class receives namespaces, RDF statements and comments in process of evaluating <i>SPARQL</i>
+ * <code>CONSTRUCT</code> query form.
+ * <p>
+ * In the first phase the RDF statements are collected via push methods (handle* methods). Result document is create on
+ * the go, and its statements are written compactly.
+ * <p>
+ * In the second phase the result document can be obtain via get methods.
+ * 
+ * @author Vlastimil Ovèáèík
+ * 
+ */
 public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandler<List<String[]>> {
 
 	private static final String INDENT = "   ";
 	public static final String SERIALIZATION_FORMAT = "Turtle";
 	private StringBuilder builder;
-	private boolean ended;
 	private Resource lastSubject;
 	private Object lastPredicate;
 	private Map<String, String> namespaces;
 	private List<String[]> rows;
 	private List<String> columnNames;
 
+	/**
+	 * Constructs new instance.
+	 */
 	public SparqlTurtleResultHandler() {
 		builder = new StringBuilder();
-		ended = false;
 		lastSubject = null;
 		lastPredicate = null;
 		namespaces = new LinkedHashMap<String, String>();
@@ -38,14 +51,38 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 		rows = new ArrayList<String[]>();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public void startRDF() throws RDFHandlerException {
+
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void endRDF() throws RDFHandlerException {
 		closeLastSubject();
-
+	
 		columnNames.add(SERIALIZATION_FORMAT + " result: ");
 		String[] row = new String[] { builder.toString() };
 		rows.add(row);
+
+		builder = null;
+		namespaces = null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public void close() {
+		columnNames = null;
+		rows = null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void handleComment(String comment) throws RDFHandlerException {
 		if (comment.indexOf("\r") != -1 || comment.indexOf("\n") != -1) {
 			// multi-line comment
@@ -59,8 +96,10 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void handleNamespace(String prefix, String uri) throws RDFHandlerException {
-		// TODO mohou se namespace duplikovat?
 		if (!namespaces.containsKey(uri)) {
 			if (TurtleUtil.isLegalPrefix(prefix) || !namespaces.containsValue(prefix)) {
 				namespaces.put(uri, prefix);
@@ -73,41 +112,102 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 				prefix += var;
 				namespaces.put(uri, prefix);
 			}
+			uri = TurtleUtil.encodeURIString(uri);
+			builder.append("@prefix " + prefix + ": <" + uri + "> .\n");
 		}
-		builder.append("@prefix " + prefix + ": <" + uri + "> .\n");
-		// TODO encodeuristring(uri)
-
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void handleStatement(Statement st) throws RDFHandlerException {
-		// FIXME Resource c = st.getContext();
 		Resource s = st.getSubject();
 		URI p = st.getPredicate();
 		Value o = st.getObject();
-
+	
 		p.getLocalName();
-
+	
 		if (s.equals(lastSubject)) {
+			// we will use comma and semicolon to make turtle document more readable while we still have same subject
 			if (p.equals(lastPredicate)) {
 				// comma,
 				builder.append(",\n" + INDENT + INDENT);
-				builder.append(writeObject(o));
+				builder.append(getObject(o));
 			} else {
 				// semicolon;
 				builder.append(";\n" + INDENT);
-				builder.append(writePredicate(p));
-				builder.append(writeObject(o));
+				builder.append(getPredicate(p));
+				builder.append(getObject(o));
 			}
 		} else {
+			// starting new subject
 			closeLastSubject();
-			// start new subject
-			builder.append(writeSubject(s));
-			builder.append(writePredicate(p));
-			builder.append(writeObject(o));
+			builder.append(getSubject(s));
+			builder.append(getPredicate(p));
+			builder.append(getObject(o));
 		}
-
+	
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<String> getColumnNames() {
+		return columnNames;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<String[]> getRows() {
+		// TODO tahle metoda by mìla mít interface
+		// TODO check complete
+		return rows;
+	}
+
+	/**
+	 * Method returns string representation of <i>RDF subject</i> in Turtle notation.
+	 * 
+	 * @param s
+	 *            the subject to be serialized
+	 * @return RDF subject in Turtle notation
+	 */
+	private String getSubject(Resource s) {
+		if (lastSubject == null) {
+			lastSubject = s;
+			return getResource(s);
+		} else {
+			throw new RuntimeException(
+					"Error while building TURTLE document: Previous subject statement has not been closed.");
+		}
+	}
+
+	/**
+	 * Method returns string representation of <i>RDF predicate</i> in Turtle notation.
+	 * 
+	 * @param p
+	 *            the predicate to be serialized
+	 * @return RDF predicate in Turtle notation
+	 */
+	private String getPredicate(URI p) {
+		lastPredicate = p;
+		return "<" + p.stringValue() + "> ";
+	}
+
+	/**
+	 * Method returns string representation of <i>RDF object</i> in Turtle notation.
+	 * 
+	 * @param o
+	 *            the object to be serialized
+	 * @return RDF object in Turtle notation
+	 */
+	private String getObject(Value o) {
+		return getValue(o);
+	}
+
+	/**
+	 * Closes last written <i>RDF subject</i> if any.
+	 */
 	private void closeLastSubject() {
 		if (lastSubject != null) {
 			builder.append(".\n");
@@ -117,10 +217,15 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 
 	}
 
-	private String writeObject(Value o) {
-		return getValue(o);
-	}
-
+	/**
+	 * Returns provided <i>value</i> in Turtle notation.
+	 * <p>
+	 * <i>Value</i> has to be instance of {@link org.openrdf.model.Resource} or {@link org.openrdf.model.Literal}
+	 * 
+	 * @param value
+	 *            the value to be serialized
+	 * @return value in Turtle notation
+	 */
 	private String getValue(Value value) {
 		if (value instanceof Resource) {
 			return getResource((Resource) value);
@@ -132,6 +237,72 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 		}
 	}
 
+	/**
+	 * Returns provided <i>resource</i> in Turtle notation.
+	 * <p>
+	 * <i>Resource</i> has to be instance of {@link org.openrdf.model.URI} or {@link org.openrdf.model.BNode}
+	 * 
+	 * @param resource
+	 *            the resource to be serialized
+	 * @return resource in Turtle notation
+	 */
+	private String getResource(Resource resource) {
+		if (resource instanceof URI) {
+			return getURI((URI) resource);
+		} else if (resource instanceof BNode) {
+			return getBNode((BNode) resource);
+		} else {
+			throw new RuntimeException(
+					"Error while building TURTLE document: Provided Resource parameter is not instance of URI nor yet BNode.");
+		}
+	}
+
+	/**
+	 * Returns provided <i>URI</i> in Turtle notation.
+	 * <p>
+	 * Method tries to short the <i>URI</i> with prefix.
+	 * 
+	 * @param uri
+	 *            the <i>URI</i> to be serialized
+	 * @return URI in Turtle notation. If there is no matching prefix method returns full URI.
+	 */
+	private String getURI(URI uri) {
+		String uriString = uri.toString();
+		String prefix = null;
+	
+		int index = TurtleUtil.findURISplitIndex(uriString);
+		if (index > 0) {
+			String ns = uriString.substring(0, index);
+			prefix = namespaces.get(ns);
+		}
+	
+		if (prefix == null) {
+			return "<" + TurtleUtil.encodeURIString(uriString) + "> ";
+		} else {
+			return prefix + ":" + uriString.substring(index) + " ";
+		}
+	}
+
+	/**
+	 * Returns <i>blank node (bNode)</i> in Turtle notation.
+	 * 
+	 * @param bNode
+	 *            the blank node to be serialized
+	 * @return blank node in Turtle notation
+	 */
+	private String getBNode(BNode bNode) {
+		return "_:" + bNode.getID() + " ";
+	}
+
+	/**
+	 * Returns provided <i>Literal</i> in Turtle notation.
+	 * <p>
+	 * Long strings are encoded as <i>"""Turtle long strings"""</i>. Returned string consist of literal's label (the
+	 * value) and optionally <i>^^datatype</i> or <i>@lang</i> suffix (not both).
+	 * 
+	 * @param literal
+	 * @return
+	 */
 	private String getLiteral(Literal literal) {
 		String label = literal.getLabel();
 		String result = "";
@@ -152,74 +323,6 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 			result += "@" + literal.getLanguage() + " ";
 		}
 		return result;
-	}
-
-	private String writePredicate(URI p) {
-		lastPredicate = p;
-		return "<" + p.stringValue() + "> ";
-	}
-
-	private String writeSubject(Resource s) {
-		if (lastSubject == null) {
-			lastSubject = s;
-			return getResource(s);
-		} else {
-			throw new RuntimeException(
-					"Error while building TURTLE document: Previous subject statement has not been closed.");
-		}
-	}
-
-	private String getResource(Resource resource) {
-		if (resource instanceof URI) {
-			return getURI((URI) resource);
-		} else if (resource instanceof BNode) {
-			return getBNode((BNode) resource);
-		} else {
-			throw new RuntimeException(
-					"Error while building TURTLE document: Provided Resource parameter is not instance of URI nor yet BNode.");
-		}
-	}
-
-	private String getBNode(BNode bNode) {
-		return "_:" + bNode.getID() + " ";
-	}
-
-	private String getURI(URI uri) {
-		String uriString = uri.toString();
-		String prefix = null;
-
-		int index = TurtleUtil.findURISplitIndex(uriString);
-		if (index > 0) {
-			String ns = uriString.substring(0, index);
-			prefix = namespaces.get(ns);
-		}
-
-		if (prefix == null) {
-			return "<" + TurtleUtil.encodeURIString(uriString) + "> ";
-		} else {
-			return prefix + ":" + uriString.substring(index) + " ";
-		}
-	}
-
-	public void startRDF() throws RDFHandlerException {
-		// TODO co sem?
-	}
-
-	public void close() {
-		columnNames = null;
-		rows = null;
-		// TODO Auto-generated method stub
-
-	}
-
-	public List<String> getColumnNames() {
-		return columnNames;
-	}
-
-	public List<String[]> getRows() {
-		// TODO tahle metoda by mìla mít interface
-		// TODO check complete
-		return rows;
 	}
 
 }
