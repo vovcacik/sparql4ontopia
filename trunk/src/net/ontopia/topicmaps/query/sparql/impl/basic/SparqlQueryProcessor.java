@@ -123,7 +123,7 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 				QueryTracer.enterOrderBy();
 				SparqlTupleResultHandler handler = new SparqlTupleResultHandler();
 				tq.evaluate(handler);
-				return new SparqlTupleQueryResult(handler, topicMapSystem, topicMap);
+				return new SparqlTupleQueryResult(handler, topicMap);
 				// TODO proè to dìlám pøes handler zkusit pøímo na výsledek?
 
 			} else {
@@ -164,8 +164,7 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	/**
 	 * {@inheritDoc}
 	 */
-	public QueryResultIF execute(String query, DeclarationContextIF context)
-			throws InvalidQueryException {
+	public QueryResultIF execute(String query, DeclarationContextIF context) throws InvalidQueryException {
 		logger.warn("DeclarationContextIF parameter was not used in query. The query: " + query);
 		return execute(query);
 	}
@@ -173,18 +172,16 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	/**
 	 * {@inheritDoc}
 	 */
-	public QueryResultIF execute(String query, Map<String, ?> arguments)
-			throws InvalidQueryException {
-		logger.warn("Parameters from arguments parameter were not bind to query. The query: "
-				+ query);
+	public QueryResultIF execute(String query, Map<String, ?> arguments) throws InvalidQueryException {
+		logger.warn("Parameters from arguments parameter were not bind to query. The query: " + query);
 		return execute(query);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public QueryResultIF execute(String query, Map<String, ?> arguments,
-			DeclarationContextIF context) throws InvalidQueryException {
+	public QueryResultIF execute(String query, Map<String, ?> arguments, DeclarationContextIF context)
+			throws InvalidQueryException {
 		logger
 				.warn("DeclarationContextIF parameter was not used in query. Parameters from arguments parameter were not bind to query. The query: "
 						+ query);
@@ -224,10 +221,8 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	/**
 	 * {@inheritDoc}
 	 */
-	public ParsedQueryIF parse(String query, DeclarationContextIF context)
-			throws InvalidQueryException {
-		logger.warn("DeclarationContextIF parameter was not used in parsed query. The query: "
-				+ query);
+	public ParsedQueryIF parse(String query, DeclarationContextIF context) throws InvalidQueryException {
+		logger.warn("DeclarationContextIF parameter was not used in parsed query. The query: " + query);
 		return parse(query);
 	}
 
