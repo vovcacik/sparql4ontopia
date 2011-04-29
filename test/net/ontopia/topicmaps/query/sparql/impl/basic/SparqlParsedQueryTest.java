@@ -3,6 +3,7 @@ package net.ontopia.topicmaps.query.sparql.impl.basic;
 import java.io.File;
 
 import junit.framework.TestCase;
+import net.ontopia.topicmaps.core.TMObjectIF;
 import net.ontopia.topicmaps.core.TopicMapIF;
 import net.ontopia.topicmaps.query.core.InvalidQueryException;
 import net.ontopia.topicmaps.query.core.ParsedQueryIF;
@@ -18,8 +19,8 @@ public class SparqlParsedQueryTest extends TestCase {
 
 	private final String PROTOCOL = "file:/";
 	private final String ITALIAN_OPERA_PATH = "c:/topicmaps/ontopia-5.1.3/apache-tomcat/webapps/omnigator/WEB-INF/topicmaps/ItalianOpera.ltm";
-	private final String QUERY = "PREFIX o: <http://psi.ontopedia.net/>\r\n" + "SELECT *\r\n"
-			+ "WHERE {\r\n" + "o:Friedrich_Ludwig_Zacharias_Werner o:Work ?name .}";
+	private final String QUERY = "PREFIX o: <http://psi.ontopedia.net/>\r\n" + "SELECT *\r\n" + "WHERE {\r\n"
+			+ "o:Friedrich_Ludwig_Zacharias_Werner o:Work ?name .}";
 	private TopicMapIF tm;
 	private QueryProcessorIF processor;
 	private ParsedQueryIF pq;
@@ -59,12 +60,15 @@ public class SparqlParsedQueryTest extends TestCase {
 
 	@Test
 	public void testExecuteWernersWork() {
+		TMObjectIF expectedTopic = tm.getObjectById("5874"); // werner's play Attila id
 		try {
 			QueryResultIF result = pq.execute();
 			assertEquals("name", result.getColumnName(0));
 			// TODO result by mìl vracet instance topic a ne jen ident...
 			assertTrue(result.next());
-			assertEquals(PROTOCOL + ITALIAN_OPERA_PATH + "#attila-src", result.getValue(0));
+			TMObjectIF realTopic = (TMObjectIF) result.getValue(0);
+			// assertEquals(PROTOCOL + ITALIAN_OPERA_PATH + "#attila-src", result.getValue(0));
+			assertEquals(expectedTopic, realTopic);
 			assertFalse(result.next());
 
 		} catch (InvalidQueryException e) {

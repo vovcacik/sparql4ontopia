@@ -3,6 +3,7 @@ package net.ontopia.topicmaps.query.sparql.impl.basic;
 import java.io.File;
 
 import junit.framework.TestCase;
+import net.ontopia.topicmaps.core.TMObjectIF;
 import net.ontopia.topicmaps.core.TopicMapIF;
 import net.ontopia.topicmaps.query.core.InvalidQueryException;
 import net.ontopia.topicmaps.query.core.ParsedQueryIF;
@@ -43,12 +44,30 @@ public class SparqlQueryProcessorTest extends TestCase {
 	public void testExecuteWernersWork() {
 		String query = "PREFIX o: <http://psi.ontopedia.net/>\r\n" + "SELECT *\r\n" + "WHERE {\r\n"
 				+ "o:Friedrich_Ludwig_Zacharias_Werner o:Work ?name .}";
-
+		TMObjectIF expectedTopic = tm.getObjectById("5874"); // werner's play Attila id
 		try {
 			QueryResultIF result = processor.execute(query);
 			assertEquals("name", result.getColumnName(0));
 			assertTrue(result.next());
-			assertEquals(PROTOCOL + ITALIAN_OPERA_PATH + "#attila-src", result.getValue(0));
+			TMObjectIF realTopic = (TMObjectIF) result.getValue(0);
+			// assertEquals(PROTOCOL + ITALIAN_OPERA_PATH + "#attila-src", result.getValue(0));
+			assertEquals(expectedTopic, realTopic);
+			assertFalse(result.next());
+
+		} catch (InvalidQueryException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testExecuteWernersBirthday() {
+		String query = "PREFIX o: <http://psi.ontopedia.net/>\r\n" + "SELECT *\r\n" + "WHERE {\r\n"
+				+ "o:Friedrich_Ludwig_Zacharias_Werner o:date_of_birth ?birth .\r\n" + "}";
+		try {
+			QueryResultIF result = processor.execute(query);
+			assertEquals("birth", result.getColumnName(0));
+			assertTrue(result.next());
+			assertEquals("1768-11-18", result.getValue(0));
 			assertFalse(result.next());
 
 		} catch (InvalidQueryException e) {
@@ -75,28 +94,34 @@ public class SparqlQueryProcessorTest extends TestCase {
 		String query = "PREFIX foaf:   <http://xmlns.com/foaf/0.1/>\r\n"
 				+ "PREFIX tm:    <http://psi.topicmaps.org/iso13250/model/>\r\n"
 				+ "PREFIX xsd:    <http://www.w3.org/2001/XMLSchema#>\r\n"
-				+ "PREFIX o: <http://psi.ontopedia.net/>\r\n" + "\r\n"
-				+ "CONSTRUCT { o:Puccini foaf:name ?name }\r\n"
+				+ "PREFIX o: <http://psi.ontopedia.net/>\r\n" + "\r\n" + "CONSTRUCT { o:Puccini foaf:name ?name }\r\n"
 				+ "WHERE  { o:Puccini tm:topic-name ?name }";
 		String header = SparqlTurtleResultHandler.SERIALIZATION_FORMAT + " result: ";
-		String expectedResult = "<pre>@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .\n"
+		// TODO poøadí ve výsledku je náhodné?
+		String expectedResult1 = "<pre>@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .\n"
 				+ "@prefix tm: &lt;http://psi.topicmaps.org/iso13250/model/&gt; .\n"
 				+ "@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .\n"
 				+ "@prefix o: &lt;http://psi.ontopedia.net/&gt; .\n"
 				+ "o:Puccini &lt;http://xmlns.com/foaf/0.1/name&gt; &quot;Giacomo Puccini&quot;^^xsd:string ,\n"
-				+ "      &quot;Puccini, Giacomo&quot;^^xsd:string ,\n"
-				+ "      &quot;Puccini&quot;^^xsd:string .\n" + "</pre>";
+				+ "      &quot;Puccini, Giacomo&quot;^^xsd:string ,\n" + "      &quot;Puccini&quot;^^xsd:string .\n"
+				+ "</pre>";
+		String expectedResult2 = "<pre>@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .\n"
+				+ "@prefix tm: &lt;http://psi.topicmaps.org/iso13250/model/&gt; .\n"
+				+ "@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .\n"
+				+ "@prefix o: &lt;http://psi.ontopedia.net/&gt; .\n"
+				+ "o:Puccini &lt;http://xmlns.com/foaf/0.1/name&gt; &quot;Giacomo Puccini&quot;^^xsd:string ,\n"
+				+ "      &quot;Puccini&quot;^^xsd:string ,\n" + "      &quot;Puccini, Giacomo&quot;^^xsd:string .\n"
+				+ "</pre>";
 		try {
 			QueryResultIF result = processor.execute(query);
 			assertEquals(header, result.getColumnName(0));
 			assertTrue(result.next());
 			String realResult = (String) result.getValue(header);
-			assertEquals(expectedResult, realResult);
+			assertTrue(((realResult.equals(expectedResult1)) || (realResult.equals(expectedResult2))));
 			assertFalse(result.next());
 
 		} catch (InvalidQueryException e) {
 			e.printStackTrace();
 		}
 	}
-
 }
