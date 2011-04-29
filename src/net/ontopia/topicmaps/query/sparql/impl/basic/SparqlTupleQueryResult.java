@@ -13,7 +13,7 @@ public class SparqlTupleQueryResult implements QueryResultIF {
 	private int currentRowIndex;
 	private List<String> columnNames;
 	private List<BindingSet> rows;
-	private OntopiaResultHandler<String, BindingSet> handler;
+	private OntopiaResultHandler<List<BindingSet>> handler;
 
 	/**
 	 * constructor
@@ -21,7 +21,7 @@ public class SparqlTupleQueryResult implements QueryResultIF {
 	 * @param
 	 */
 
-	public SparqlTupleQueryResult(OntopiaResultHandler<String, BindingSet> handler) {
+	public SparqlTupleQueryResult(OntopiaResultHandler<List<BindingSet>> handler) {
 		this.currentRowIndex = -1;
 		this.columnNames = handler.getColumnNames();
 		this.rows = handler.getRows();

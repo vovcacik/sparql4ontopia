@@ -16,8 +16,7 @@ import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.turtle.TurtleUtil;
 
-public class SparqlTurtleResultHandler implements RDFHandler,
-		OntopiaResultHandler<String, String[]> {
+public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandler<List<String[]>> {
 
 	private static final String INDENT = "   ";
 	public static final String SERIALIZATION_FORMAT = "Turtle";

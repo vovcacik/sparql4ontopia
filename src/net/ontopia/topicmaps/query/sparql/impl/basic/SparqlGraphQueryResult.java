@@ -12,9 +12,9 @@ public class SparqlGraphQueryResult implements QueryResultIF {
 	private List<String> columnNames;
 	private List<String[]> rows;
 	private int currentRowIndex;
-	private OntopiaResultHandler<String, String[]> handler;
+	private OntopiaResultHandler<List<String[]>> handler;
 
-	public SparqlGraphQueryResult(OntopiaResultHandler<String, String[]> handler) {
+	public SparqlGraphQueryResult(OntopiaResultHandler<List<String[]>> handler) {
 		currentRowIndex = -1;
 		this.columnNames = handler.getColumnNames();
 		this.rows = handler.getRows();
