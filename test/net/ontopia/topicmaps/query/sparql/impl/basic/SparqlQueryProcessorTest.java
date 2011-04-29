@@ -8,6 +8,7 @@ import net.ontopia.topicmaps.query.core.InvalidQueryException;
 import net.ontopia.topicmaps.query.core.ParsedQueryIF;
 import net.ontopia.topicmaps.query.core.QueryProcessorIF;
 import net.ontopia.topicmaps.query.core.QueryResultIF;
+import net.ontopia.topicmaps.query.sparql.impl.util.SparqlTurtleResultHandler;
 import net.ontopia.topicmaps.utils.ltm.LTMTopicMapReader;
 
 import org.junit.After;
@@ -77,14 +78,20 @@ public class SparqlQueryProcessorTest extends TestCase {
 				+ "PREFIX o: <http://psi.ontopedia.net/>\r\n" + "\r\n"
 				+ "CONSTRUCT { o:Puccini foaf:name ?name }\r\n"
 				+ "WHERE  { o:Puccini tm:topic-name ?name }";
-		String document = "";
+		String header = SparqlTurtleResultHandler.SERIALIZATION_FORMAT + " result: ";
+		String expectedResult = "<pre>@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .\n"
+				+ "@prefix tm: &lt;http://psi.topicmaps.org/iso13250/model/&gt; .\n"
+				+ "@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .\n"
+				+ "@prefix o: &lt;http://psi.ontopedia.net/&gt; .\n"
+				+ "o:Puccini &lt;http://xmlns.com/foaf/0.1/name&gt; &quot;Giacomo Puccini&quot;^^xsd:string ,\n"
+				+ "      &quot;Puccini&quot;^^xsd:string ,\n"
+				+ "      &quot;Puccini, Giacomo&quot;^^xsd:string .\n" + "</pre>";
 		try {
 			QueryResultIF result = processor.execute(query);
-			assertEquals("Document", result.getColumnName(0));
+			assertEquals(header, result.getColumnName(0));
 			assertTrue(result.next());
-			String doc = (String) result.getValue("Document");
-			// TODO takhle to nestaèí
-			assertNotSame(document, doc);
+			String realResult = (String) result.getValue(header);
+			assertEquals(expectedResult, realResult);
 			assertFalse(result.next());
 
 		} catch (InvalidQueryException e) {
