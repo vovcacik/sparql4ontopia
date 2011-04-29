@@ -13,7 +13,7 @@ import net.ontopia.topicmaps.query.core.ParsedQueryIF;
 import net.ontopia.topicmaps.query.core.QueryProcessorIF;
 import net.ontopia.topicmaps.query.core.QueryResultIF;
 import net.ontopia.topicmaps.query.impl.basic.QueryTracer;
-import net.ontopia.topicmaps.query.sparql.impl.util.SPARQLResultHandler;
+import net.ontopia.topicmaps.query.sparql.impl.util.SparqlTupleResultHandler;
 import net.ontopia.topicmaps.query.sparql.impl.util.SparqlTurtleResultHandler;
 
 import org.openrdf.query.GraphQuery;
@@ -122,7 +122,7 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 				QueryTracer.startQuery();
 				QueryTracer.trace("Length of evaluate() method in seconds", new String[0]);
 				QueryTracer.enterOrderBy();
-				SPARQLResultHandler handler = new SPARQLResultHandler();
+				SparqlTupleResultHandler handler = new SparqlTupleResultHandler();
 				tq.evaluate(handler);
 				return new SparqlTupleQueryResult(handler);
 				// TODO proè to dìlám pøes handler zkusit pøímo na výsledek?
@@ -169,7 +169,7 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	public QueryResultIF executeTuple(String query) throws InvalidQueryException {
 		TupleQuery tq = null;
 		RepositoryConnection con = null;
-		SPARQLResultHandler handler = new SPARQLResultHandler();
+		SparqlTupleResultHandler handler = new SparqlTupleResultHandler();
 
 		try {
 			con = repository.getConnection();
