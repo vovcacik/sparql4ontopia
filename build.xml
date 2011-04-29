@@ -1,0 +1,74 @@
+	<project name="sparql4ontopia" default="start" basedir=".">
+	    <description>
+	        simple example build file
+	    </description>
+	  <!-- set global properties for this build -->
+	  <property name="src" location="src"/>
+	  <property name="build" location="build"/>
+	  <property name="dist"  location="dist"/>
+	  <property name="jar" location="jar"/>
+	  <property name="plugin" value="sparql4ontopia.jar"/>
+	  <property name="ontopia_home" location="c:\topicmaps\ontopia-5.1.3"/>
+
+	  <target name="init">
+	    <!-- Create the time stamp -->
+	    <tstamp/>
+	    <!-- Create the build directory structure used by compile -->
+	    <mkdir dir="${build}"/>
+	  	<copy todir="${build}">
+	  	  <fileset dir="${jar}">
+	  	    <include name="**"/>
+	  	  </fileset>
+	  	</copy>
+	  	<delete file="${ontopia_home}\apache-tomcat\common\lib\${plugin}"/>
+	  	<delete file="${ontopia_home}\apache-tomcat\logs\tomcat.log"/>
+	  </target>
+
+	  <target name="compile" depends="init"
+	        description="compile the source " >
+	    <!-- Compile the java code from ${src} into ${build} -->
+	    <javac srcdir="${src}" destdir="${build}"/>
+	  </target>
+
+	  <target name="dist" depends="compile"
+	        description="generate the distribution" >
+	    <!-- Create the distribution directory -->
+	    <mkdir dir="${dist}/lib"/>
+
+	    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+	    <jar jarfile="${dist}/${plugin}" basedir="${build}"/>
+	  </target>
+		
+	  <target name="plugin" depends="dist"
+		      description="Copy the plugin to ontopia" >
+	  	<copy todir="${ontopia_home}\apache-tomcat\common\lib">
+	  		  	  <fileset dir="${dist}">
+	  		  	    <include name="${plugin}"/>
+	  		  	  </fileset>
+	    </copy>
+	  	<exec dir="${ontopia_home}\apache-tomcat\bin" executable="cmd.exe" os="Windows XP" spawn="true">
+	  	  <arg line="/c startup.bat"/>
+	  	</exec>
+	  </target>
+		
+	  <target name="start" depends="plugin"
+		      description="Start the server" >
+	  	<exec dir="${ontopia_home}\apache-tomcat\bin" executable="cmd.exe" os="Windows XP" spawn="true">
+	  	  <arg line="/c startup.bat start"/>
+	  	</exec>
+	  </target>
+
+	  <target name="debug" depends="plugin"
+			      description="Start the server in debug mode" >
+		  <exec dir="${ontopia_home}\apache-tomcat\bin" executable="cmd.exe" os="Windows XP" spawn="true">
+		    <arg line="/c startup.bat jpda start"/>
+		  </exec>
+	  </target>
+		
+	  <target name="clean"
+	        description="clean up" >
+	  	<exec dir="${ontopia_home}\apache-tomcat\bin" executable="cmd.exe" os="Windows XP">
+	  		  	  <arg line="/c shutdown.bat"/>
+	   </exec>
+	  </target>
+	</project>
