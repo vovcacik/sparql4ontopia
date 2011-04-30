@@ -45,13 +45,13 @@ import org.tmapi.core.TopicMapSystemFactory;
 import de.topicmapslab.sesame.sail.tmapi.TmapiStore;
 
 /**
- * This is SPARQL query processor which is used to execute queries.
+ * This is SPARQL query processor which is used to parse and execute queries. You can get the instance with
+ * {@link SparqlQueryProcessorFactory}.
  * 
  * @author Vlastimil Ovèáèík
  * 
  */
 public class SparqlQueryProcessor implements QueryProcessorIF {
-	// TODO docs
 	private final Logger logger = LoggerFactory.getLogger(SparqlQueryProcessor.class);
 	private TopicMapSystem topicMapSystem;
 	private TopicMap topicMap;
@@ -59,26 +59,39 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	private String baseIRI;
 
 	/**
-	 * Constructor of {@link SparqlQueryProcessor}.TODO doc
+	 * Constructor of {@link SparqlQueryProcessor}. Base IRI address is unknown.
 	 * 
 	 * @param topicMap
 	 *            topic map to be queried
 	 */
-
 	public SparqlQueryProcessor(TopicMapIF topicMap) {
+		this(topicMap, null);
+	}
+	/**
+	 * Constructor of {@link SparqlQueryProcessor}.
+	 * 
+	 * @param topicMap
+	 *            topic map to be queried
+	 * @param base
+	 *            known base IRI of topic map
+	 */
+
+	public SparqlQueryProcessor(TopicMapIF topicMap, String base) {
+		this.baseIRI = base;
 		try {
 			TopicMapSystemFactory factory = TopicMapSystemFactory.newInstance();
 			topicMapSystem = factory.newTopicMapSystem();
+			// we need to get TMAPI this.topicMap from Ontopia (TopicMapIF) topicMap
 			this.topicMap = ((MemoryTopicMapSystemImpl) topicMapSystem).createTopicMap(topicMap);
-			baseIRI = this.topicMap.getLocator().toExternalForm();
 		} catch (FactoryConfigurationException e) {
 			e.printStackTrace();
 		} catch (TMAPIException e) {
 			e.printStackTrace();
 		}
 
+		// Nikunau OpenRDF Store implementation for topic map system
 		TmapiStore tmapiStore = new TmapiStore(topicMapSystem);
-		// TODO nastavení tmapiStore??
+		// Repository is OpenRDF's main object for manipulation with data
 		repository = new SailRepository(tmapiStore);
 		try {
 			repository.initialize();
@@ -89,9 +102,8 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	}
 
 	/**
-	 * TODO doc
+	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("null")
 	public QueryResultIF execute(String query) throws InvalidQueryException {
 		Query q = null;
 		RepositoryConnection con = null;
@@ -100,22 +112,26 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 			con = repository.getConnection();
 			q = con.prepareQuery(QueryLanguage.SPARQL, query, null);
 			if (baseIRI != null) {
-				// TODO co tohle dìlá? dát za try{}
 				// assure that only the graph baseIRI can be queried
 				DatasetImpl dataSet = new DatasetImpl();
+				// create new dataSet with single base URI and pass it to the query q
 				dataSet.addDefaultGraph(con.getValueFactory().createURI(baseIRI));
 				q.setDataset(dataSet);
 			}
 			if (q.getClass() == SailGraphQuery.class) {
+				// Graph queries are used in CONSTRUCT sparql query form
 				GraphQuery gq = null;
 				gq = (GraphQuery) q;
+				SparqlTurtleResultHandler handler = new SparqlTurtleResultHandler();
+				// Ontopia's query tracer. It displays time needed to evaluate query in milliseconds.
 				QueryTracer.startQuery();
 				QueryTracer.trace("Length of evaluate() method in seconds", new String[0]);
+				// this should mark entering ORDER BY statement in query but it marks very beginning of the query
 				QueryTracer.enterOrderBy();
-				SparqlTurtleResultHandler handler = new SparqlTurtleResultHandler();
 				gq.evaluate(handler);
 				return new SparqlGraphQueryResult(handler);
 			} else if (q.getClass() == SailTupleQuery.class) {
+				// Tuple queries are used in other sparql query forms
 				TupleQuery tq = null;
 				tq = (TupleQuery) q;
 				QueryTracer.startQuery();
@@ -124,41 +140,31 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 				SparqlTupleResultHandler handler = new SparqlTupleResultHandler();
 				tq.evaluate(handler);
 				return new SparqlTupleQueryResult(handler, topicMap);
-				// TODO proè to dìlám pøes handler zkusit pøímo na výsledek?
-
 			} else {
-				// nepodporovaný typ dotazu (boolean)
+				throw new InvalidQueryException("Query is not GraphQuery or TupleQuery.");
 			}
-			// ArrayList<String> list = new ArrayList<String>();
-			// list.add("list");
-			// String[] array = { "a", "b", "c" };
-			// QueryTracer.trace("1", array);
-			// QueryTracer.enter(list);
-			// QueryTracer.leave(list);
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		} catch (MalformedQueryException e) {
 			e.printStackTrace();
 		} catch (QueryEvaluationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (TupleQueryResultHandlerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (RDFHandlerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			QueryTracer.leaveOrderBy();
 			QueryTracer.endQuery();
-			try {
-				con.close();
-			} catch (RepositoryException e) {
-				e.printStackTrace();
+			if (con != null) {
+				try {
+					con.close();
+				} catch (RepositoryException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return null;
-
 	}
 
 	/**
@@ -182,9 +188,8 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	 */
 	public QueryResultIF execute(String query, Map<String, ?> arguments, DeclarationContextIF context)
 			throws InvalidQueryException {
-		logger
-				.warn("DeclarationContextIF parameter was not used in query. Parameters from arguments parameter were not bind to query. The query: "
-						+ query);
+		logger.warn("DeclarationContextIF parameter was not used in query. "
+				+ "Parameters from arguments parameter were not bind to query. The query: " + query);
 		return execute(query);
 	}
 
@@ -203,7 +208,7 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	}
 
 	/**
-	 * TODO doc
+	 * {@inheritDoc}
 	 */
 	public ParsedQueryIF parse(String query) throws InvalidQueryException {
 		ParsedQuery parsedQuery;

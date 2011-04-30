@@ -18,12 +18,17 @@ public class SparqlQueryProcessorFactory implements QueryProcessorFactoryIF {
 
 	private final static String NAME = "SPARQL";
 
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public QueryProcessorIF createQueryProcessor(TopicMapIF topicmap, LocatorIF base,
 			Map<String, String> properties) {
-		return new SparqlQueryProcessor(topicmap); // TODO base address param
+		if (base != null) {
+			return new SparqlQueryProcessor(topicmap, base.getAddress());
+		} else {
+			return new SparqlQueryProcessor(topicmap);
+		}
 	}
 
 	/**
