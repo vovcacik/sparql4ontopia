@@ -41,6 +41,8 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 	private Map<String, String> namespaces;
 	private List<String[]> rows;
 	private List<String> columnNames;
+	private Boolean running;
+	private boolean done;
 
 	/**
 	 * Constructs new instance.
@@ -52,36 +54,18 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 		namespaces = new LinkedHashMap<String, String>();
 		columnNames = new ArrayList<String>();
 		rows = new ArrayList<String[]>();
+		running = false;
+		done = false;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void startRDF() throws RDFHandlerException {
-		// TODO implement this
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void endRDF() throws RDFHandlerException {
-		closeLastSubject();
-	
-		columnNames.add(SERIALIZATION_FORMAT + " result: ");
-		String[] row = new String[] { builder.toString() };
-		rows.add(row);
-
-		builder = null;
-		namespaces = null;
-		// TODO see startrdf()
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void close() {
-		columnNames = null;
-		rows = null;
+		if (running || done) {
+			throw new RuntimeException("Obtaining results has been started.");
+		}
+		running = true;
 	}
 
 	/**
@@ -156,7 +140,30 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 	/**
 	 * {@inheritDoc}
 	 */
+	public void endRDF() throws RDFHandlerException {
+		if (!running) {
+			throw new RuntimeException("Cannot endRDF: Obtaining results has not been started");
+		}
+		closeLastSubject();
+
+		columnNames.add(SERIALIZATION_FORMAT + " result: ");
+		String[] row = new String[] { builder.toString() };
+		rows.add(row);
+
+		builder = null;
+		namespaces = null;
+
+		running = false;
+		done = true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<String> getColumnNames() {
+		if (!done) {
+			throw new RuntimeException("Result column names were not collected yet.");
+		}
 		return columnNames;
 	}
 
@@ -164,8 +171,18 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 	 * {@inheritDoc}
 	 */
 	public List<String[]> getRows() {
-		// TODO check if gathering resutls is completed
+		if (!done) {
+			throw new RuntimeException("Result rows were not collected yet.");
+		}
 		return rows;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void close() {
+		columnNames = null;
+		rows = null;
 	}
 
 	/**
