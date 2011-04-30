@@ -112,7 +112,8 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 		try {
 			con = repository.getConnection();
 			q = con.prepareQuery(QueryLanguage.SPARQL, query, base);
-			if (base != null) {
+			if (base != null && false) {
+				// FIXME why Armin needed this code? it breaks funcionality.
 				// assure that only the graph base can be queried
 				DatasetImpl dataSet = new DatasetImpl();
 				// create new dataSet with single base URI and pass it to the query q
