@@ -102,14 +102,14 @@ public class SparqlQueryProcessorTest extends TestCase {
 				+ "@prefix tm: &lt;http://psi.topicmaps.org/iso13250/model/&gt; .\n"
 				+ "@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .\n"
 				+ "@prefix o: &lt;http://psi.ontopedia.net/&gt; .\n"
-				+ "o:Puccini &lt;http://xmlns.com/foaf/0.1/name&gt; &quot;Giacomo Puccini&quot;^^xsd:string ,\n"
+				+ "o:Puccini foaf:name &quot;Giacomo Puccini&quot;^^xsd:string ,\n"
 				+ "      &quot;Puccini, Giacomo&quot;^^xsd:string ,\n" + "      &quot;Puccini&quot;^^xsd:string .\n"
 				+ "</pre>";
 		String expectedResult2 = "<pre>@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .\n"
 				+ "@prefix tm: &lt;http://psi.topicmaps.org/iso13250/model/&gt; .\n"
 				+ "@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .\n"
 				+ "@prefix o: &lt;http://psi.ontopedia.net/&gt; .\n"
-				+ "o:Puccini &lt;http://xmlns.com/foaf/0.1/name&gt; &quot;Giacomo Puccini&quot;^^xsd:string ,\n"
+				+ "o:Puccini foaf:name &quot;Giacomo Puccini&quot;^^xsd:string ,\n"
 				+ "      &quot;Puccini&quot;^^xsd:string ,\n" + "      &quot;Puccini, Giacomo&quot;^^xsd:string .\n"
 				+ "</pre>";
 		try {
