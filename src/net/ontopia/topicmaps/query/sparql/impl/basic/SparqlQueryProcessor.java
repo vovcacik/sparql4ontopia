@@ -56,10 +56,10 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	private TopicMapSystem topicMapSystem;
 	private TopicMap topicMap;
 	private Repository repository;
-	private String baseIRI;
+	private String base;
 
 	/**
-	 * Constructor of {@link SparqlQueryProcessor}. Base IRI address is unknown.
+	 * Constructor of {@link SparqlQueryProcessor}. Base URI address is unknown.
 	 * 
 	 * @param topicMap
 	 *            topic map to be queried
@@ -67,17 +67,18 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	public SparqlQueryProcessor(TopicMapIF topicMap) {
 		this(topicMap, null);
 	}
+
 	/**
 	 * Constructor of {@link SparqlQueryProcessor}.
 	 * 
 	 * @param topicMap
 	 *            topic map to be queried
 	 * @param base
-	 *            known base IRI of topic map
+	 *            known base URI of topic map
 	 */
 
 	public SparqlQueryProcessor(TopicMapIF topicMap, String base) {
-		this.baseIRI = base;
+		this.base = base;
 		try {
 			TopicMapSystemFactory factory = TopicMapSystemFactory.newInstance();
 			topicMapSystem = factory.newTopicMapSystem();
@@ -110,12 +111,12 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 
 		try {
 			con = repository.getConnection();
-			q = con.prepareQuery(QueryLanguage.SPARQL, query, null);
-			if (baseIRI != null) {
-				// assure that only the graph baseIRI can be queried
+			q = con.prepareQuery(QueryLanguage.SPARQL, query, base);
+			if (base != null) {
+				// assure that only the graph base can be queried
 				DatasetImpl dataSet = new DatasetImpl();
 				// create new dataSet with single base URI and pass it to the query q
-				dataSet.addDefaultGraph(con.getValueFactory().createURI(baseIRI));
+				dataSet.addDefaultGraph(con.getValueFactory().createURI(base));
 				q.setDataset(dataSet);
 			}
 			if (q.getClass() == SailGraphQuery.class) {
@@ -213,7 +214,7 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	public ParsedQueryIF parse(String query) throws InvalidQueryException {
 		ParsedQuery parsedQuery;
 		try {
-			parsedQuery = QueryParserUtil.parseQuery(QueryLanguage.SPARQL, query, baseIRI);
+			parsedQuery = QueryParserUtil.parseQuery(QueryLanguage.SPARQL, query, base);
 			return new SparqlParsedQuery(this, query, parsedQuery);
 		} catch (MalformedQueryException e) {
 			e.printStackTrace();
