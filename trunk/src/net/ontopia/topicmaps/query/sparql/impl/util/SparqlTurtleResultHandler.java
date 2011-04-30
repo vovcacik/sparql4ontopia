@@ -20,10 +20,13 @@ import org.openrdf.rio.turtle.TurtleUtil;
  * This class receives namespaces, RDF statements and comments in process of evaluating <i>SPARQL</i>
  * <code>CONSTRUCT</code> query form.
  * <p>
- * In the first phase the RDF statements are collected via push methods (handle* methods). Result document is create on
+ * In the first phase the RDF statements are collected via push methods (handle* methods). Result document is created on
  * the go, and its statements are written compactly.
  * <p>
  * In the second phase the result document can be obtain via get methods.
+ * <p>
+ * Handler implements two interfaces. One for OpenRDF side ({@link RDFHandler}) and one for Ontopia side (
+ * {@link OntopiaResultHandler})
  * 
  * @author Vlastimil Ovèáèík
  * 
@@ -55,7 +58,7 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 	 * {@inheritDoc}
 	 */
 	public void startRDF() throws RDFHandlerException {
-
+		// TODO implement this
 	}
 
 	/**
@@ -70,6 +73,7 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 
 		builder = null;
 		namespaces = null;
+		// TODO see startrdf()
 	}
 
 	/**
@@ -160,8 +164,7 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 	 * {@inheritDoc}
 	 */
 	public List<String[]> getRows() {
-		// TODO tahle metoda by mìla mít interface
-		// TODO check complete
+		// TODO check if gathering resutls is completed
 		return rows;
 	}
 
@@ -190,6 +193,7 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 	 * @return RDF predicate in Turtle notation
 	 */
 	private String getPredicate(URI p) {
+		// FIXME try assign prefix
 		lastPredicate = p;
 		return "<" + p.stringValue() + "> ";
 	}
@@ -214,7 +218,6 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 			lastSubject = null;
 			lastPredicate = null;
 		}
-
 	}
 
 	/**
