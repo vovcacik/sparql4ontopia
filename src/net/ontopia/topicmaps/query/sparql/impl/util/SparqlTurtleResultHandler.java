@@ -72,6 +72,7 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 	 * {@inheritDoc}
 	 */
 	public void handleComment(String comment) throws RDFHandlerException {
+		closeLastSubject();
 		if (comment.indexOf("\r") != -1 || comment.indexOf("\n") != -1) {
 			// multi-line comment
 			StringTokenizer tokenizer = new StringTokenizer(comment, "\r\n");
