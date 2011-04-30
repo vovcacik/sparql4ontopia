@@ -12,6 +12,16 @@ import org.openrdf.model.Value;
 import org.openrdf.query.BindingSet;
 import org.tmapi.core.TopicMap;
 
+/**
+ * This class represents result of <i>SPARQL</i> tuple query.
+ * <p>
+ * It provides access to column names (result table header), sequential access to result values (result table rows) and
+ * single table cell values.
+ * 
+ * @author Vlastimil OvË·ËÌk
+ * @see {@link SparqlAbstractQueryResult}
+ * 
+ */
 public class SparqlTupleQueryResult extends SparqlAbstractQueryResult {
 	private int currentRowIndex;
 	private List<BindingSet> rows;
@@ -19,14 +29,15 @@ public class SparqlTupleQueryResult extends SparqlAbstractQueryResult {
 	private TopicMap tm;
 
 	/**
-	 * constructor
+	 * Constructor.
+	 * <p>
+	 * This instance should be closed with <code>close()</code> method.
 	 * 
+	 * @param handler
+	 *            the handler used to gather results
 	 * @param topicMap
-	 * @param topicMapSystem
-	 * 
-	 * @param
+	 *            the queried topic map
 	 */
-
 	public SparqlTupleQueryResult(OntopiaResultHandler<List<BindingSet>> handler, TopicMap topicMap) {
 		this.currentRowIndex = -1;
 		this.columnNames = handler.getColumnNames();
@@ -35,23 +46,31 @@ public class SparqlTupleQueryResult extends SparqlAbstractQueryResult {
 		this.tm = topicMap;
 	}
 
-	public void close() {
-		handler.close();
-		columnNames = null;
-		rows = null;
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean next() {
+		currentRowIndex++;
+		return currentRowIndex < rows.size();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public Object getValue(int ix) {
 		String colname = getColumnName(ix);
 		return getValue(colname);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public Object getValue(String colname) {
 		BindingSet row = rows.get(currentRowIndex);
 		Value value = row.getValue(colname);
 
-		// stringValue may be item identifier URL which can be resolved to TMObjectIF (usually TopicIF) or literal
-		// Affects displaying result in web interface
+		// stringValue may be item identifier URL which can be resolved to TMObjectIF (usually TopicIF) or literal.
+		// Affects displaying result in web interface.
 		String stringValue = value.stringValue();
 		TMObjectIF object = getObjectByItemIdentifier(stringValue);
 
@@ -62,6 +81,26 @@ public class SparqlTupleQueryResult extends SparqlAbstractQueryResult {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public void close() {
+		handler.close();
+		columnNames = null;
+		rows = null;
+	}
+
+	/**
+	 * Provides access to {@link TMObjectIF} objects in queried topic map.
+	 * <p>
+	 * Item identifier is URL pointing to <i>topic map object</i> stored/defined in the topic map file. <br>
+	 * Format: <code>file:/path/TMName.ltm#objectID</code> <br>
+	 * An Example: <code>file:/ontopia/topicmaps/ItalianOpera.ltm#cause-of-death</code>
+	 * 
+	 * @param itemID
+	 *            Item identifier of the
+	 * @return TMObjectIF instance representing the referenced object
+	 */
 	private TMObjectIF getObjectByItemIdentifier(String itemID) {
 		URILocator loc;
 		try {
@@ -71,12 +110,7 @@ public class SparqlTupleQueryResult extends SparqlAbstractQueryResult {
 		}
 		TMObjectIF object = ((TopicMapImpl) tm).getWrapped().getObjectByItemIdentifier(loc);
 		return object;
-
-	}
-
-	public boolean next() {
-		currentRowIndex++;
-		return currentRowIndex < rows.size();
+	
 	}
 
 }

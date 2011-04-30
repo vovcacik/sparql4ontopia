@@ -15,6 +15,12 @@ import org.openrdf.query.parser.ParsedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Represents parsed SPARQL query.
+ * 
+ * @author Vlastimil Ovèáèík
+ * 
+ */
 public class SparqlParsedQuery implements ParsedQueryIF {
 
 	final Logger logger = LoggerFactory.getLogger(SparqlParsedQuery.class);
@@ -22,12 +28,25 @@ public class SparqlParsedQuery implements ParsedQueryIF {
 	private ParsedQuery parsedQuery;
 	private SparqlQueryProcessor processor;
 
+	/**
+	 * Constructor. It requires SparqlQueryProcessor and (String) query for executing the query.
+	 * 
+	 * @param processor
+	 *            sparql query processor used to execute the query
+	 * @param query
+	 *            string of the query
+	 * @param parsedQuery
+	 *            parsed query
+	 */
 	public SparqlParsedQuery(SparqlQueryProcessor processor, String query, ParsedQuery parsedQuery) {
 		this.processor = processor;
 		this.query = query;
 		this.parsedQuery = parsedQuery;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public QueryResultIF execute() throws InvalidQueryException {
 		return processor.execute(query);
 	}
@@ -36,7 +55,6 @@ public class SparqlParsedQuery implements ParsedQueryIF {
 	 * {@inheritDoc}
 	 */
 	public QueryResultIF execute(Map<String, ?> arguments) throws InvalidQueryException {
-		// FIXME implement this
 		logger.warn("Parameters from arguments parameter were not bind to query. The query: "
 				+ query);
 		return execute();
@@ -53,11 +71,7 @@ public class SparqlParsedQuery implements ParsedQueryIF {
 	/**
 	 * {@inheritDoc}
 	 */
-	// FIXME co tahle metoda dìlá? counted variables?
 	public Collection<String> getCountedVariables() {
-		// TupleExpr tuple = pq.getTupleExpr();
-		// return tuple.getAssuredBindingNames();
-		// TODO odpovídají assured binding names = counted variables?
 		return new LinkedList<String>();
 	}
 
@@ -65,22 +79,29 @@ public class SparqlParsedQuery implements ParsedQueryIF {
 	 * {@inheritDoc}
 	 */
 	public List<String> getOrderBy() {
-		// TODO Auto-generated method stub
 		return Collections.emptyList();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<String> getSelectedVariables() {
-		// TODO Auto-generated method stub
 		return Collections.emptyList();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean isOrderedAscending(String name) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
+		// TODO co tohle ovlivòuje?
 		return parsedQuery.toString();
 	}
 }
