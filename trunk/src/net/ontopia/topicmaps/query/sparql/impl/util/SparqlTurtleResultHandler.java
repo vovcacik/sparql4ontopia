@@ -63,7 +63,7 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 	 */
 	public void startRDF() throws RDFHandlerException {
 		if (running || done) {
-			throw new RuntimeException("Obtaining results has been started.");
+			throw new RuntimeException("Obtaining results has been already started.");
 		}
 		running = true;
 	}
