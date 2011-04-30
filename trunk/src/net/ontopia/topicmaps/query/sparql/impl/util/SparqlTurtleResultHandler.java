@@ -193,9 +193,8 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 	 * @return RDF predicate in Turtle notation
 	 */
 	private String getPredicate(URI p) {
-		// FIXME try assign prefix
 		lastPredicate = p;
-		return "<" + p.stringValue() + "> ";
+		return getURI(p);
 	}
 
 	/**
@@ -271,18 +270,12 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 	 */
 	private String getURI(URI uri) {
 		String uriString = uri.toString();
-		String prefix = null;
-	
-		int index = TurtleUtil.findURISplitIndex(uriString);
-		if (index > 0) {
-			String ns = uriString.substring(0, index);
-			prefix = namespaces.get(ns);
-		}
-	
-		if (prefix == null) {
+		String[] uriSplitted = splitByPrefix(uriString);
+
+		if (uriSplitted == null) {
 			return "<" + TurtleUtil.encodeURIString(uriString) + "> ";
 		} else {
-			return prefix + ":" + uriString.substring(index) + " ";
+			return uriSplitted[0] + ":" + uriSplitted[1] + " ";
 		}
 	}
 
@@ -309,7 +302,7 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 	private String getLiteral(Literal literal) {
 		String label = literal.getLabel();
 		String result = "";
-
+	
 		if (label.indexOf('\n') > 0 || label.indexOf('\r') > 0 || label.indexOf('\t') > 0) {
 			result += "\"\"\"";
 			result += TurtleUtil.encodeLongString(label);
@@ -319,13 +312,34 @@ public class SparqlTurtleResultHandler implements RDFHandler, OntopiaResultHandl
 			result += TurtleUtil.encodeString(label);
 			result += "\"";
 		}
-
+	
 		if (literal.getDatatype() != null) {
 			result += "^^" + getURI(literal.getDatatype());
 		} else if (literal.getLanguage() != null) {
 			result += "@" + literal.getLanguage() + " ";
 		}
 		return result;
+	}
+
+	/**
+	 * Provided URI address splits on two parts - namespace and path. Namespace is replaced by prefix.
+	 * 
+	 * @param uri
+	 *            URI to be split
+	 * @return String array containing <i>two</i> strings - existing prefix and path. Otherwise null.
+	 */
+	private String[] splitByPrefix(String uri) {
+		int index = TurtleUtil.findURISplitIndex(uri);
+		if (index > 0) {
+			String ns = uri.substring(0, index);
+			String prefix = namespaces.get(ns);
+			String path = uri.substring(index);
+	
+			if (prefix != null) {
+				return new String[] { prefix, path };
+			}
+		}
+		return null;
 	}
 
 }
