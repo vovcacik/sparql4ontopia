@@ -95,13 +95,4 @@ public class SparqlParsedQuery implements ParsedQueryIF {
 	public boolean isOrderedAscending(String name) {
 		return false;
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString() {
-		// TODO co tohle ovlivòuje?
-		return parsedQuery.toString();
-	}
 }
