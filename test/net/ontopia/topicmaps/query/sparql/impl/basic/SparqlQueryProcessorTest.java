@@ -3,6 +3,8 @@ package net.ontopia.topicmaps.query.sparql.impl.basic;
 import java.io.File;
 
 import junit.framework.TestCase;
+import net.ontopia.infoset.core.LocatorIF;
+import net.ontopia.infoset.impl.basic.URILocator;
 import net.ontopia.topicmaps.core.TMObjectIF;
 import net.ontopia.topicmaps.core.TopicMapIF;
 import net.ontopia.topicmaps.query.core.InvalidQueryException;
@@ -18,26 +20,30 @@ import org.junit.Test;
 
 public class SparqlQueryProcessorTest extends TestCase {
 
-	private final String PROTOCOL = "file:/";
-	private final String ITALIAN_OPERA_PATH = "c:/topicmaps/ontopia-5.1.3/apache-tomcat/webapps/omnigator/WEB-INF/topicmaps/ItalianOpera.ltm";
 	private TopicMapIF tm;
 	private QueryProcessorIF processor;
+	private QueryProcessorIF processorWithBase;
 
 	@Before
 	public void setUp() throws Exception {
 		try {
-			LTMTopicMapReader reader = new LTMTopicMapReader(new File(ITALIAN_OPERA_PATH));
+			LTMTopicMapReader reader = new LTMTopicMapReader(new File(AllTests.ITALIAN_OPERA_PATH));
 			this.tm = reader.read();
 		} catch (java.io.IOException e) {
 			System.err.println("Error reading topic map: " + e);
 		}
+		LocatorIF locator = new URILocator(AllTests.ITALIAN_OPERA_BASE);
 		SparqlQueryProcessorFactory factory = new SparqlQueryProcessorFactory();
+
 		processor = factory.createQueryProcessor(tm, null, null);
+		processorWithBase = factory.createQueryProcessor(tm, locator, null);
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		// TODO add
+		processor = null;
+		processorWithBase = null;
+		tm = null;
 	}
 
 	@Test
@@ -48,11 +54,20 @@ public class SparqlQueryProcessorTest extends TestCase {
 		try {
 			QueryResultIF result = processor.execute(query);
 			assertEquals("name", result.getColumnName(0));
+			assertEquals("name", result.getColumnNames()[0]);
 			assertTrue(result.next());
+
 			TMObjectIF realTopic = (TMObjectIF) result.getValue(0);
-			// assertEquals(PROTOCOL + ITALIAN_OPERA_PATH + "#attila-src", result.getValue(0));
 			assertEquals(expectedTopic, realTopic);
+
+			realTopic = (TMObjectIF) result.getValues()[0];
+			assertEquals(expectedTopic, realTopic);
+
+			Object[] realValues = new Object[result.getWidth()];
+			assertEquals(realTopic, result.getValues(realValues)[0]);
+
 			assertFalse(result.next());
+			result.close();
 
 		} catch (InvalidQueryException e) {
 			e.printStackTrace();
@@ -69,7 +84,39 @@ public class SparqlQueryProcessorTest extends TestCase {
 			assertTrue(result.next());
 			assertEquals("1768-11-18", result.getValue(0));
 			assertFalse(result.next());
+			result.close();
+		} catch (InvalidQueryException e) {
+			e.printStackTrace();
+		}
+	}
 
+	@Test
+	public void testExecuteWernersBirthdayWithBaseIRI() {
+		String query = "SELECT *\r\n" + "WHERE {\r\n"
+				+ "<Friedrich_Ludwig_Zacharias_Werner> <date_of_birth> ?birth .}";
+		try {
+			QueryResultIF result = processorWithBase.execute(query);
+			assertEquals("birth", result.getColumnName(0));
+			assertTrue(result.next());
+			assertEquals("1768-11-18", result.getValue(0));
+			assertFalse(result.next());
+			result.close();
+		} catch (InvalidQueryException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testExecuteWernersBirthdayWithBaseIRIInQuery() {
+		String query = "BASE <http://psi.ontopedia.net/>\r\n" + "SELECT *\r\n" + "WHERE {\r\n"
+				+ "<Friedrich_Ludwig_Zacharias_Werner> <date_of_birth> ?birth .}";
+		try {
+			QueryResultIF result = processorWithBase.execute(query);
+			assertEquals("birth", result.getColumnName(0));
+			assertTrue(result.next());
+			assertEquals("1768-11-18", result.getValue(0));
+			assertFalse(result.next());
+			result.close();
 		} catch (InvalidQueryException e) {
 			e.printStackTrace();
 		}
@@ -97,7 +144,7 @@ public class SparqlQueryProcessorTest extends TestCase {
 				+ "PREFIX o: <http://psi.ontopedia.net/>\r\n" + "\r\n" + "CONSTRUCT { o:Puccini foaf:name ?name }\r\n"
 				+ "WHERE  { o:Puccini tm:topic-name ?name }";
 		String header = SparqlTurtleResultHandler.SERIALIZATION_FORMAT + " result: ";
-		// TODO poøadí ve výsledku je náhodné?
+		// order of predicates seems random
 		String expectedResult1 = "<pre>@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt; .\n"
 				+ "@prefix tm: &lt;http://psi.topicmaps.org/iso13250/model/&gt; .\n"
 				+ "@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .\n"
@@ -119,7 +166,7 @@ public class SparqlQueryProcessorTest extends TestCase {
 			String realResult = (String) result.getValue(header);
 			assertTrue(((realResult.equals(expectedResult1)) || (realResult.equals(expectedResult2))));
 			assertFalse(result.next());
-
+			result.close();
 		} catch (InvalidQueryException e) {
 			e.printStackTrace();
 		}

@@ -1,6 +1,7 @@
 package net.ontopia.topicmaps.query.sparql.impl.basic;
 
 import java.io.File;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 import net.ontopia.topicmaps.core.TMObjectIF;
@@ -17,10 +18,15 @@ import org.junit.Test;
 
 public class SparqlParsedQueryTest extends TestCase {
 
-	private final String PROTOCOL = "file:/";
-	private final String ITALIAN_OPERA_PATH = "c:/topicmaps/ontopia-5.1.3/apache-tomcat/webapps/omnigator/WEB-INF/topicmaps/ItalianOpera.ltm";
 	private final String QUERY = "PREFIX o: <http://psi.ontopedia.net/>\r\n" + "SELECT *\r\n" + "WHERE {\r\n"
 			+ "o:Friedrich_Ludwig_Zacharias_Werner o:Work ?name .}";
+	private final String PARSED_QUERY = "Projection\r\n"
+			+ "   ProjectionElemList\r\n"
+			+ "      ProjectionElem \"name\"\r\n"
+			+ "   StatementPattern\r\n"
+			+ "      Var (name=-const-1, value=http://psi.ontopedia.net/Friedrich_Ludwig_Zacharias_Werner, anonymous)\r\n"
+			+ "      Var (name=-const-2, value=http://psi.ontopedia.net/Work, anonymous)\r\n"
+			+ "      Var (name=name)\r\n";
 	private TopicMapIF tm;
 	private QueryProcessorIF processor;
 	private ParsedQueryIF pq;
@@ -28,7 +34,7 @@ public class SparqlParsedQueryTest extends TestCase {
 	@Before
 	public void setUp() throws Exception {
 		try {
-			LTMTopicMapReader reader = new LTMTopicMapReader(new File(ITALIAN_OPERA_PATH));
+			LTMTopicMapReader reader = new LTMTopicMapReader(new File(AllTests.ITALIAN_OPERA_PATH));
 			this.tm = reader.read();
 		} catch (java.io.IOException e) {
 			System.err.println("Error reading topic map: " + e);
@@ -40,7 +46,9 @@ public class SparqlParsedQueryTest extends TestCase {
 
 	@After
 	public void tearDown() throws Exception {
-		// TODO add
+		tm = null;
+		processor = null;
+		pq = null;
 	}
 
 	@Test
@@ -52,10 +60,8 @@ public class SparqlParsedQueryTest extends TestCase {
 
 	@Test
 	public void testGetCountedVariables() {
-		String[] vars = pq.getCountedVariables().toArray(new String[0]);
-		assertEquals(0, vars.length);
-		// assertEquals("", vars[0]);
-		// TODO doplnit query o counted variable abych to mohl testnout
+		Collection<String> vars = pq.getCountedVariables();
+		assertEquals(0, vars.size());
 	}
 
 	@Test
@@ -64,10 +70,8 @@ public class SparqlParsedQueryTest extends TestCase {
 		try {
 			QueryResultIF result = pq.execute();
 			assertEquals("name", result.getColumnName(0));
-			// TODO result by mìl vracet instance topic a ne jen ident...
 			assertTrue(result.next());
 			TMObjectIF realTopic = (TMObjectIF) result.getValue(0);
-			// assertEquals(PROTOCOL + ITALIAN_OPERA_PATH + "#attila-src", result.getValue(0));
 			assertEquals(expectedTopic, realTopic);
 			assertFalse(result.next());
 
@@ -78,6 +82,6 @@ public class SparqlParsedQueryTest extends TestCase {
 
 	@Test
 	public void testToString() {
-		assertEquals(true, pq.toString().length() > 0);
+		assertEquals(PARSED_QUERY, pq.toString());
 	}
 }
