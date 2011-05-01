@@ -24,7 +24,6 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.UnsupportedQueryLanguageException;
-import org.openrdf.query.impl.DatasetImpl;
 import org.openrdf.query.parser.ParsedQuery;
 import org.openrdf.query.parser.QueryParserUtil;
 import org.openrdf.repository.Repository;
@@ -52,8 +51,7 @@ import de.topicmapslab.sesame.sail.tmapi.TmapiStore;
  * 
  */
 public class SparqlQueryProcessor implements QueryProcessorIF {
-	private final Logger logger = LoggerFactory.getLogger(SparqlQueryProcessor.class);
-	private TopicMapSystem topicMapSystem;
+	private static final Logger LOGGER = LoggerFactory.getLogger(SparqlQueryProcessor.class);
 	private TopicMap topicMap;
 	private Repository repository;
 	private String base;
@@ -64,7 +62,7 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	 * @param topicMap
 	 *            topic map to be queried
 	 */
-	public SparqlQueryProcessor(TopicMapIF topicMap) {
+	public SparqlQueryProcessor(final TopicMapIF topicMap) {
 		this(topicMap, null);
 	}
 
@@ -77,84 +75,83 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	 *            known base URI of topic map
 	 */
 
-	public SparqlQueryProcessor(TopicMapIF topicMap, String base) {
+	public SparqlQueryProcessor(final TopicMapIF topicMap, final String base) {
 		this.base = base;
+		TopicMapSystem topicMapSystem = null;
 		try {
-			TopicMapSystemFactory factory = TopicMapSystemFactory.newInstance();
+			final TopicMapSystemFactory factory = TopicMapSystemFactory.newInstance();
 			topicMapSystem = factory.newTopicMapSystem();
 			// we need to get TMAPI this.topicMap from Ontopia (TopicMapIF) topicMap
 			this.topicMap = ((MemoryTopicMapSystemImpl) topicMapSystem).createTopicMap(topicMap);
 		} catch (FactoryConfigurationException e) {
-			e.printStackTrace();
+			LOGGER.warn("Creating new TopicMapSystemFactory failed.", e);
 		} catch (TMAPIException e) {
-			e.printStackTrace();
+			LOGGER.warn("Creating new TopicMapSystem failed.", e);
 		}
 
 		// Nikunau OpenRDF Store implementation for topic map system
-		TmapiStore tmapiStore = new TmapiStore(topicMapSystem);
+		final TmapiStore tmapiStore = new TmapiStore(topicMapSystem);
 		// Repository is OpenRDF's main object for manipulation with data
 		repository = new SailRepository(tmapiStore);
 		try {
 			repository.initialize();
 		} catch (RepositoryException e) {
-			e.printStackTrace();
+			LOGGER.warn("Sail repository initialization failed.", e);
 		}
-		logger.info("SPARQL query processor initialized.");
+		LOGGER.info("SparqlQueryProcessor initialized. Base URL: {}.", this.base);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public QueryResultIF execute(String query) throws InvalidQueryException {
-		Query q = null;
+	public QueryResultIF execute(final String query) throws InvalidQueryException {
+		QueryResultIF queryResult = null;
 		RepositoryConnection con = null;
 
 		try {
 			con = repository.getConnection();
-			q = con.prepareQuery(QueryLanguage.SPARQL, query, base);
-			if (base != null && false) {
-				// FIXME why Armin needed this code? it breaks funcionality.
-				// assure that only the graph base can be queried
-				DatasetImpl dataSet = new DatasetImpl();
-				// create new dataSet with single base URI and pass it to the query q
-				dataSet.addDefaultGraph(con.getValueFactory().createURI(base));
-				q.setDataset(dataSet);
-			}
-			if (q.getClass() == SailGraphQuery.class) {
+			final Query queryRDF = con.prepareQuery(QueryLanguage.SPARQL, query, base);
+			// if (base != null) {
+			// // FIXME why Armin needed this code? it breaks funcionality.
+			// // assure that only the graph base can be queried
+			// final DatasetImpl dataSet = new DatasetImpl();
+			// // create new dataSet with single base URI and pass it to the query q
+			// dataSet.addDefaultGraph(con.getValueFactory().createURI(base));
+			// q.setDataset(dataSet);
+			// }
+			if (queryRDF.getClass() == SailGraphQuery.class) {
 				// Graph queries are used in CONSTRUCT sparql query form
-				GraphQuery gq = null;
-				gq = (GraphQuery) q;
-				SparqlTurtleResultHandler handler = new SparqlTurtleResultHandler();
+				final GraphQuery graphQuery = (GraphQuery) queryRDF;
+				final SparqlTurtleResultHandler handler = new SparqlTurtleResultHandler();
 				// Ontopia's query tracer. It displays time needed to evaluate query in milliseconds.
 				QueryTracer.startQuery();
 				QueryTracer.trace("Length of evaluate() method in seconds", new String[0]);
 				// this should mark entering ORDER BY statement in query but it marks very beginning of the query
 				QueryTracer.enterOrderBy();
-				gq.evaluate(handler);
-				return new SparqlGraphQueryResult(handler);
-			} else if (q.getClass() == SailTupleQuery.class) {
+				graphQuery.evaluate(handler);
+				queryResult = new SparqlGraphQueryResult(handler);
+			} else if (queryRDF.getClass() == SailTupleQuery.class) {
 				// Tuple queries are used in other sparql query forms
-				TupleQuery tq = null;
-				tq = (TupleQuery) q;
+				final TupleQuery tupleQuery = (TupleQuery) queryRDF;
 				QueryTracer.startQuery();
 				QueryTracer.trace("Length of evaluate() method in seconds", new String[0]);
 				QueryTracer.enterOrderBy();
-				SparqlTupleResultHandler handler = new SparqlTupleResultHandler();
-				tq.evaluate(handler);
-				return new SparqlTupleQueryResult(handler, topicMap);
+				final SparqlTupleResultHandler handler = new SparqlTupleResultHandler();
+				tupleQuery.evaluate(handler);
+				queryResult = new SparqlTupleQueryResult(handler, topicMap);
 			} else {
 				throw new InvalidQueryException("Query is not GraphQuery or TupleQuery.");
 			}
 		} catch (RepositoryException e) {
-			e.printStackTrace();
+			LOGGER.warn("While preparing query evaluation an error occured.", e);
 		} catch (MalformedQueryException e) {
-			e.printStackTrace();
+			LOGGER.warn("While preparing query evaluation an error occured.", e);
 		} catch (QueryEvaluationException e) {
-			e.printStackTrace();
+			LOGGER.warn("While evaluating query an error occured.", e);
 		} catch (TupleQueryResultHandlerException e) {
-			e.printStackTrace();
+			LOGGER.warn("While evaluating query an error occured.", e);
 		} catch (RDFHandlerException e) {
-			e.printStackTrace();
+			LOGGER.warn("While evaluating query an error occured.", e);
 		} finally {
 			QueryTracer.leaveOrderBy();
 			QueryTracer.endQuery();
@@ -162,18 +159,18 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 				try {
 					con.close();
 				} catch (RepositoryException e) {
-					e.printStackTrace();
+					LOGGER.warn("Connection could not be closed.", e);
 				}
 			}
 		}
-		return null;
+		return queryResult;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public QueryResultIF execute(String query, DeclarationContextIF context) throws InvalidQueryException {
-		logger.warn("DeclarationContextIF parameter was not used in query. The query: " + query);
+		LOGGER.warn("DeclarationContextIF parameter was not used in query. The query: " + query);
 		return execute(query);
 	}
 
@@ -181,7 +178,7 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	 * {@inheritDoc}
 	 */
 	public QueryResultIF execute(String query, Map<String, ?> arguments) throws InvalidQueryException {
-		logger.warn("Parameters from arguments parameter were not bind to query. The query: " + query);
+		LOGGER.warn("Parameters from arguments parameter were not bind to query. The query: " + query);
 		return execute(query);
 	}
 
@@ -190,7 +187,7 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	 */
 	public QueryResultIF execute(String query, Map<String, ?> arguments, DeclarationContextIF context)
 			throws InvalidQueryException {
-		logger.warn("DeclarationContextIF parameter was not used in query. "
+		LOGGER.warn("DeclarationContextIF parameter was not used in query. "
 				+ "Parameters from arguments parameter were not bind to query. The query: " + query);
 		return execute(query);
 	}
@@ -199,28 +196,28 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	 * {@inheritDoc}
 	 */
 	public void load(String ruleset) throws InvalidQueryException {
-		logger.warn("Ruleset was not loaded into the query processor");
+		LOGGER.warn("Ruleset was not loaded into the query processor");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void load(Reader ruleset) throws InvalidQueryException, IOException {
-		logger.warn("Ruleset was not loaded into the query processor");
+		LOGGER.warn("Ruleset was not loaded into the query processor");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public ParsedQueryIF parse(String query) throws InvalidQueryException {
+	public ParsedQueryIF parse(final String query) throws InvalidQueryException {
 		ParsedQuery parsedQuery;
 		try {
 			parsedQuery = QueryParserUtil.parseQuery(QueryLanguage.SPARQL, query, base);
 			return new SparqlParsedQuery(this, query, parsedQuery);
 		} catch (MalformedQueryException e) {
-			e.printStackTrace();
+			LOGGER.warn("While parsing SPARQL query an exception occured.", e);
 		} catch (UnsupportedQueryLanguageException e) {
-			e.printStackTrace();
+			LOGGER.warn("While parsing SPARQL query an exception occured.", e);
 		}
 		throw new InvalidQueryException("Query could not be parsed. The query: " + query);
 	}
@@ -229,7 +226,7 @@ public class SparqlQueryProcessor implements QueryProcessorIF {
 	 * {@inheritDoc}
 	 */
 	public ParsedQueryIF parse(String query, DeclarationContextIF context) throws InvalidQueryException {
-		logger.warn("DeclarationContextIF parameter was not used in parsed query. The query: " + query);
+		LOGGER.warn("DeclarationContextIF parameter was not used in parsed query. The query: " + query);
 		return parse(query);
 	}
 

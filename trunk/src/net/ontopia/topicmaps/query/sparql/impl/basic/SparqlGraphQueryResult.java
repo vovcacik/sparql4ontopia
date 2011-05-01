@@ -19,11 +19,11 @@ import org.apache.commons.lang.StringEscapeUtils;
  * @author Vlastimil OvË·ËÌk
  * 
  */
-public class SparqlGraphQueryResult extends SparqlAbstractQueryResult {
+public class SparqlGraphQueryResult extends AbstractQueryResult {
 
 	private List<String[]> rows;
 	private int currentRowIndex;
-	private OntopiaResultHandler<List<String[]>> handler;
+	private final OntopiaResultHandler<List<String[]>> handler;
 
 	/**
 	 * Constructor.
@@ -33,7 +33,7 @@ public class SparqlGraphQueryResult extends SparqlAbstractQueryResult {
 	 * @param handler
 	 *            handler used to gather and obtain results
 	 */
-	public SparqlGraphQueryResult(OntopiaResultHandler<List<String[]>> handler) {
+	public SparqlGraphQueryResult(final OntopiaResultHandler<List<String[]>> handler) {
 		currentRowIndex = -1;
 		this.columnNames = handler.getColumnNames();
 		this.rows = handler.getRows();
@@ -51,16 +51,16 @@ public class SparqlGraphQueryResult extends SparqlAbstractQueryResult {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object getValue(int ix) {
-		String[] row = rows.get(currentRowIndex);
-		return escapeToCode(row[ix]);
+	public Object getValue(final int index) {
+		final String[] row = rows.get(currentRowIndex);
+		return escapeToCode(row[index]);
 
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object getValue(String colname) {
+	public Object getValue(final String colname) {
 		return getValue(getIndex(colname));
 	}
 
@@ -80,9 +80,8 @@ public class SparqlGraphQueryResult extends SparqlAbstractQueryResult {
 	 *            String representation of the code.
 	 * @return HTML element preserving provided code string formatting.
 	 */
-	private String escapeToCode(String string) {
-		// 
-		String escapedStr = StringEscapeUtils.escapeHtml(string);
+	private String escapeToCode(final String string) {
+		final String escapedStr = StringEscapeUtils.escapeHtml(string);
 		return "<pre>" + escapedStr + "</pre>";
 	}
 

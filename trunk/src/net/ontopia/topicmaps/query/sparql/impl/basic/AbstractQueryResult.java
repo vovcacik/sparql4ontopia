@@ -14,7 +14,7 @@ import net.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler;
  * @author Vlastimil OvË·ËÌk
  * 
  */
-public abstract class SparqlAbstractQueryResult implements QueryResultIF {
+public abstract class AbstractQueryResult implements QueryResultIF {
 
 	/**
 	 * Type depends on {@link OntopiaResultHandler}.
@@ -27,21 +27,21 @@ public abstract class SparqlAbstractQueryResult implements QueryResultIF {
 	 * {@inheritDoc}
 	 * 
 	 */
-	public String getColumnName(int ix) {
-		return columnNames.get(ix);
+	public String getColumnName(final int index) {
+		return columnNames.get(index);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public String[] getColumnNames() {
-		return columnNames.toArray(new String[0]);
+		return columnNames.toArray(new String[columnNames.size()]);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public int getIndex(String colname) {
+	public int getIndex(final String colname) {
 		return columnNames.indexOf(colname);
 	}
 
@@ -49,7 +49,7 @@ public abstract class SparqlAbstractQueryResult implements QueryResultIF {
 	 * {@inheritDoc}
 	 */
 	public Object[] getValues() {
-		int size = columnNames.size();
+		final int size = columnNames.size();
 		Object[] row = new Object[size];
 		for (int i = 0; i < size; i++) {
 			row[i] = getValue(i);
@@ -60,8 +60,8 @@ public abstract class SparqlAbstractQueryResult implements QueryResultIF {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object[] getValues(Object[] values) {
-		Object[] row = getValues();
+	public Object[] getValues(final Object[] values) {
+		final Object[] row = getValues();
 		System.arraycopy(row, 0, values, 0, row.length);
 		return values;
 	}

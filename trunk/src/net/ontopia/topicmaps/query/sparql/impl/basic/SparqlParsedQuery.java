@@ -23,10 +23,10 @@ import org.slf4j.LoggerFactory;
  */
 public class SparqlParsedQuery implements ParsedQueryIF {
 
-	final Logger logger = LoggerFactory.getLogger(SparqlParsedQuery.class);
-	private String query;
-	private ParsedQuery parsedQuery;
-	private SparqlQueryProcessor processor;
+	private static final Logger LOGGER = LoggerFactory.getLogger(SparqlParsedQuery.class);
+	private final String query;
+	private final ParsedQuery parsedQuery;
+	private final SparqlQueryProcessor processor;
 
 	/**
 	 * Constructor. It requires SparqlQueryProcessor and (String) query for executing the query.
@@ -38,7 +38,7 @@ public class SparqlParsedQuery implements ParsedQueryIF {
 	 * @param parsedQuery
 	 *            parsed query
 	 */
-	public SparqlParsedQuery(SparqlQueryProcessor processor, String query, ParsedQuery parsedQuery) {
+	public SparqlParsedQuery(final SparqlQueryProcessor processor, final String query, final ParsedQuery parsedQuery) {
 		this.processor = processor;
 		this.query = query;
 		this.parsedQuery = parsedQuery;
@@ -55,7 +55,7 @@ public class SparqlParsedQuery implements ParsedQueryIF {
 	 * {@inheritDoc}
 	 */
 	public QueryResultIF execute(Map<String, ?> arguments) throws InvalidQueryException {
-		logger.warn("Parameters from arguments parameter were not bind to query. The query: "
+		LOGGER.warn("Parameters from arguments parameter were not bind to query. The query: "
 				+ query);
 		return execute();
 	}
@@ -64,7 +64,7 @@ public class SparqlParsedQuery implements ParsedQueryIF {
 	 * {@inheritDoc}
 	 */
 	public Collection<String> getAllVariables() {
-		TupleExpr tuple = parsedQuery.getTupleExpr();
+		final TupleExpr tuple = parsedQuery.getTupleExpr();
 		return tuple.getBindingNames();
 	}
 
