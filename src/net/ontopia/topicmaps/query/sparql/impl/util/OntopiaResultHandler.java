@@ -2,11 +2,11 @@ package net.ontopia.topicmaps.query.sparql.impl.util;
 
 import java.util.List;
 
-import net.ontopia.topicmaps.query.sparql.impl.basic.SparqlAbstractQueryResult;
+import net.ontopia.topicmaps.query.sparql.impl.basic.AbstractQueryResult;
 
 /**
  * Defines interface which any RDF result handler class should implement in order to be usable by
- * {@link SparqlAbstractQueryResult} subclass.
+ * {@link AbstractQueryResult} subclass.
  * 
  * @author Vlastimil OvË·ËÌk
  * 
@@ -24,7 +24,7 @@ public interface OntopiaResultHandler<R> {
 	 * Getter for column names (result table header).
 	 * 
 	 * @return List of column names ordered as in <code>SELECT</code> of a query
-	 * @see {@link SparqlAbstractQueryResult}
+	 * @see {@link AbstractQueryResult}
 	 */
 	public abstract List<String> getColumnNames();
 
