@@ -18,7 +18,7 @@ public interface OntopiaResultHandler<R> {
 	/**
 	 * Method will free up all used resources.
 	 */
-	public abstract void close();
+	void close();
 
 	/**
 	 * Getter for column names (result table header).
@@ -26,13 +26,13 @@ public interface OntopiaResultHandler<R> {
 	 * @return List of column names ordered as in <code>SELECT</code> of a query
 	 * @see {@link AbstractQueryResult}
 	 */
-	public abstract List<String> getColumnNames();
+	List<String> getColumnNames();
 
 	/**
 	 * Getter for result rows.
 	 * 
 	 * @return result rows
 	 */
-	public abstract R getRows();
+	R getRows();
 
 }
