@@ -22,13 +22,15 @@ public class SparqlQueryProcessorFactory implements QueryProcessorFactoryIF {
 	/**
 	 * {@inheritDoc}
 	 */
-	public QueryProcessorIF createQueryProcessor(TopicMapIF topicmap, LocatorIF base,
-			Map<String, String> properties) {
-		if (base != null) {
-			return new SparqlQueryProcessor(topicmap, base.getAddress());
+	public QueryProcessorIF createQueryProcessor(final TopicMapIF topicmap, final LocatorIF base,
+			final Map<String, String> properties) {
+		SparqlQueryProcessor processor = null;
+		if (base == null) {
+			processor = new SparqlQueryProcessor(topicmap);
 		} else {
-			return new SparqlQueryProcessor(topicmap);
+			processor = new SparqlQueryProcessor(topicmap, base.getAddress());
 		}
+		return processor;
 	}
 
 	/**

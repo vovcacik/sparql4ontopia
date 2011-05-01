@@ -8,8 +8,11 @@ import net.ontopia.topicmaps.core.TMObjectIF;
 import net.ontopia.topicmaps.impl.tmapi2.TopicMapImpl;
 import net.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler;
 
+import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.query.BindingSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tmapi.core.TopicMap;
 
 /**
@@ -19,14 +22,16 @@ import org.tmapi.core.TopicMap;
  * single table cell values.
  * 
  * @author Vlastimil OvË·ËÌk
- * @see {@link SparqlAbstractQueryResult}
+ * @see {@link AbstractQueryResult}
  * 
  */
-public class SparqlTupleQueryResult extends SparqlAbstractQueryResult {
+public class SparqlTupleQueryResult extends AbstractQueryResult {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SparqlTupleQueryResult.class);
 	private int currentRowIndex;
 	private List<BindingSet> rows;
-	private OntopiaResultHandler<List<BindingSet>> handler;
-	private TopicMap tm;
+	private final OntopiaResultHandler<List<BindingSet>> handler;
+	private final TopicMap topicMap;
 
 	/**
 	 * Constructor.
@@ -38,12 +43,12 @@ public class SparqlTupleQueryResult extends SparqlAbstractQueryResult {
 	 * @param topicMap
 	 *            the queried topic map
 	 */
-	public SparqlTupleQueryResult(OntopiaResultHandler<List<BindingSet>> handler, TopicMap topicMap) {
+	public SparqlTupleQueryResult(final OntopiaResultHandler<List<BindingSet>> handler, final TopicMap topicMap) {
 		this.currentRowIndex = -1;
 		this.columnNames = handler.getColumnNames();
 		this.rows = handler.getRows();
 		this.handler = handler;
-		this.tm = topicMap;
+		this.topicMap = topicMap;
 	}
 
 	/**
@@ -57,27 +62,25 @@ public class SparqlTupleQueryResult extends SparqlAbstractQueryResult {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object getValue(int ix) {
-		String colname = getColumnName(ix);
+	public Object getValue(final int index) {
+		final String colname = getColumnName(index);
 		return getValue(colname);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object getValue(String colname) {
-		BindingSet row = rows.get(currentRowIndex);
-		Value value = row.getValue(colname);
-
-		// stringValue may be item identifier URL which can be resolved to TMObjectIF (usually TopicIF) or literal.
+	public Object getValue(final String colname) {
+		final BindingSet row = rows.get(currentRowIndex);
+		final Value value = row.getValue(colname);
+		final String stringValue = value.stringValue();
+		final TMObjectIF object = getObjectByItemIdentifier(value);
+		// Value is Literal or Resource. If it is resource it may be blank node or URI. Then URI is item identifier.
 		// Affects displaying result in web interface.
-		String stringValue = value.stringValue();
-		TMObjectIF object = getObjectByItemIdentifier(stringValue);
-
-		if (object != null) {
-			return object;
-		} else {
+		if (object == null) {
 			return stringValue;
+		} else {
+			return object;
 		}
 	}
 
@@ -97,20 +100,20 @@ public class SparqlTupleQueryResult extends SparqlAbstractQueryResult {
 	 * Format: <code>file:/path/TMName.ltm#objectID</code> <br>
 	 * An Example: <code>file:/ontopia/topicmaps/ItalianOpera.ltm#cause-of-death</code>
 	 * 
-	 * @param itemID
-	 *            Item identifier of the
-	 * @return TMObjectIF instance representing the referenced object
+	 * @param value
+	 *            value supposed to be item identifier
+	 * @return TMObjectIF instance representing the referenced object otherwise null
 	 */
-	private TMObjectIF getObjectByItemIdentifier(String itemID) {
-		URILocator loc;
-		try {
-			loc = new URILocator(itemID);
-		} catch (MalformedURLException e) {
-			return null;
+	private TMObjectIF getObjectByItemIdentifier(final Value value) {
+		TMObjectIF object = null;
+		if (value instanceof URI) {
+			try {
+				final URILocator loc = new URILocator(value.stringValue());
+				object = ((TopicMapImpl) topicMap).getWrapped().getObjectByItemIdentifier(loc);
+			} catch (MalformedURLException e) {
+				LOGGER.warn("Item identifier is malformed.", e);
+			}
 		}
-		TMObjectIF object = ((TopicMapImpl) tm).getWrapped().getObjectByItemIdentifier(loc);
 		return object;
-	
 	}
-
 }
