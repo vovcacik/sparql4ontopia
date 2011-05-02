@@ -46,33 +46,69 @@ public class SparqlQueryProcessorTest extends TestCase {
 		tm = null;
 	}
 
-	@Test
-	public void testExecuteWernersWork() {
-		String query = "PREFIX o: <http://psi.ontopedia.net/>\r\n" + "SELECT *\r\n" + "WHERE {\r\n"
-				+ "o:Friedrich_Ludwig_Zacharias_Werner o:Work ?name .}";
-		TMObjectIF expectedTopic = tm.getObjectById("5874"); // werner's play Attila id
-		try {
-			QueryResultIF result = processor.execute(query);
-			assertEquals("name", result.getColumnName(0));
-			assertEquals("name", result.getColumnNames()[0]);
-			assertTrue(result.next());
+    @Test
+    public void testExecuteWernersWork() {
+        String query = "PREFIX o: <http://psi.ontopedia.net/>\r\n" + "SELECT *\r\n" + "WHERE {\r\n"
+                + "o:Friedrich_Ludwig_Zacharias_Werner o:Work ?name .}";
+        TMObjectIF expectedTopic = tm.getObjectById("5874"); // werner's play Attila id
+        try {
+            QueryResultIF result = processor.execute(query);
+            assertEquals("name", result.getColumnName(0));
+            assertEquals("name", result.getColumnNames()[0]);
+            assertTrue(result.next());
 
-			TMObjectIF realTopic = (TMObjectIF) result.getValue(0);
-			assertEquals(expectedTopic, realTopic);
+            TMObjectIF realTopic = (TMObjectIF) result.getValue(0);
+            assertEquals(expectedTopic, realTopic);
 
-			realTopic = (TMObjectIF) result.getValues()[0];
-			assertEquals(expectedTopic, realTopic);
+            realTopic = (TMObjectIF) result.getValues()[0];
+            assertEquals(expectedTopic, realTopic);
 
-			Object[] realValues = new Object[result.getWidth()];
-			assertEquals(realTopic, result.getValues(realValues)[0]);
+            Object[] realValues = new Object[result.getWidth()];
+            assertEquals(realTopic, result.getValues(realValues)[0]);
 
-			assertFalse(result.next());
-			result.close();
+            assertFalse(result.next());
+            result.close();
 
-		} catch (InvalidQueryException e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (InvalidQueryException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testExecutePuccinisPlaces() {
+        String query =
+                "PREFIX o: <http://psi.ontopedia.net/>\r\n" +
+                        "SELECT *\r\n" +
+                        "WHERE {\r\n" +
+                        "o:Puccini o:Place ?Place .\r\n" +
+                        "}";
+        // second match:
+        TMObjectIF expectedTopic = tm.getObjectById("3541"); // Puccini's place of death - Brussels id
+        try {
+            QueryResultIF result = processor.execute(query);
+            assertEquals("Place", result.getColumnName(0));
+            assertEquals("Place", result.getColumnNames()[0]);
+            // first match
+            assertTrue(result.next());
+            TMObjectIF realTopic = (TMObjectIF) result.getValue(0);
+            assertNotNull(realTopic);
+            // second match
+            assertTrue(result.next());
+            realTopic = (TMObjectIF) result.getValue(0);
+            assertEquals(expectedTopic, realTopic);
+            realTopic = (TMObjectIF) result.getValues()[0];
+            assertEquals(expectedTopic, realTopic);
+
+            Object[] realValues = new Object[result.getWidth()];
+            assertEquals(realTopic, result.getValues(realValues)[0]);
+
+            assertFalse(result.next());
+            result.close();
+
+        } catch (InvalidQueryException e) {
+            e.printStackTrace();
+        }
+    }
 
 	@Test
 	public void testExecuteWernersBirthday() {
