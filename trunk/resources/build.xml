@@ -17,7 +17,7 @@
 	    <mkdir dir="${build}"/>
 	  	<copy todir="${build}">
 	  	  <fileset dir="${jar}">
-	  	    <include name="META-INF"/>
+	  	    <include name="META-INF\**"/>
 	  	  </fileset>
 	  	</copy>
 	  	<delete file="${ontopia_home}\apache-tomcat\common\lib\${plugin}"/>
