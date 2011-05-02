@@ -4,15 +4,11 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="lib/sesame-sail-tmapi-0.1.3.jar" sourcepath="/sesametm-sesame-sail-tmapi/src/main/java/"/>
-	<classpathentry kind="lib" path="C:/topicmaps/ontopia-5.1.3/apache-tomcat/common/lib/ontopia.jar" sourcepath="/ontopia"/>
-	<classpathentry kind="lib" path="lib/tmapi-2.0.2.jar" sourcepath="/tmapi/src/org"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.5.10.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://slf4j.org/apidocs"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/openrdf-sesame-2.3-pr1-onejar.jar" sourcepath="/openrdf2.3-pr1"/>
-	<classpathentry kind="lib" path="C:/topicmaps/ontopia-5.1.3/apache-tomcat/common/lib/commons-lang.jar"/>
+	<classpathentry kind="lib" path="C:/topicmaps/ontopia-5.1.3/apache-tomcat/common/lib/ontopia.jar"/>
+	<classpathentry kind="lib" path="resources/lib/commons-lang.jar"/>
+	<classpathentry kind="lib" path="resources/lib/openrdf-sesame-2.3-pr1-onejar.jar"/>
+	<classpathentry kind="lib" path="resources/lib/sesame-sail-tmapi-0.1.3.jar"/>
+	<classpathentry kind="lib" path="resources/lib/slf4j-api-1.5.10.jar"/>
+	<classpathentry kind="lib" path="resources/lib/tmapi-2.0.2.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
