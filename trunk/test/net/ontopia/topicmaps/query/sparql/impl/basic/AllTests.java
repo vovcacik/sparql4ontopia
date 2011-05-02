@@ -2,6 +2,7 @@ package net.ontopia.topicmaps.query.sparql.impl.basic;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import net.ontopia.topicmaps.query.sparql.impl.util.SparqlTurtleResultHandlerTest;
 
 public class AllTests {
 
@@ -15,6 +16,7 @@ public class AllTests {
 		suite.addTestSuite(SparqlQueryProcessorFactoryTest.class);
 		suite.addTestSuite(SparqlQueryProcessorTest.class);
 		suite.addTestSuite(SparqlParsedQueryTest.class);
+        suite.addTestSuite(SparqlTurtleResultHandlerTest.class);
 		// $JUnit-END$
 		return suite;
 	}
