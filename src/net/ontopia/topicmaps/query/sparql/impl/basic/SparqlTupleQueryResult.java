@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.ontopia.infoset.impl.basic.URILocator;
 import net.ontopia.topicmaps.core.TMObjectIF;
+import net.ontopia.topicmaps.core.TopicMapIF;
 import net.ontopia.topicmaps.impl.tmapi2.TopicMapImpl;
 import net.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler;
 
@@ -74,7 +75,7 @@ public class SparqlTupleQueryResult extends AbstractQueryResult {
 		final BindingSet row = rows.get(currentRowIndex);
 		final Value value = row.getValue(colname);
 		final String stringValue = value.stringValue();
-		final TMObjectIF object = getObjectByItemIdentifier(value);
+        final TMObjectIF object = getObjectByItemURI(value);
 		// Value is Literal or Resource. If it is resource it may be blank node or URI. Then URI is item identifier.
 		// Affects displaying result in web interface.
 		if (object == null) {
@@ -93,25 +94,37 @@ public class SparqlTupleQueryResult extends AbstractQueryResult {
 		rows = null;
 	}
 
-	/**
-	 * Provides access to {@link TMObjectIF} objects in queried topic map.
-	 * <p>
-	 * Item identifier is URL pointing to <i>topic map object</i> stored/defined in the topic map file. <br>
-	 * Format: <code>file:/path/TMName.ltm#objectID</code> <br>
-	 * An Example: <code>file:/ontopia/topicmaps/ItalianOpera.ltm#cause-of-death</code>
-	 * 
-	 * @param value
-	 *            value supposed to be item identifier
-	 * @return TMObjectIF instance representing the referenced object otherwise null
-	 */
-	private TMObjectIF getObjectByItemIdentifier(final Value value) {
+    /**
+     * Provides access to {@link TMObjectIF} objects in queried topic map. Value param is subject or item identifier.
+     * <p>
+     * Item identifier is URL pointing to <i>topic map object</i> stored/defined in the topic map file. <br>
+     * Format: <code>file:/path/TMName.ltm#objectID</code> <br>
+     * An Example: <code>file:/ontopia/topicmaps/ItalianOpera.ltm#cause-of-death</code>
+     * 
+     * @param value
+     *            URI supposed to identify topic map object
+     * @return TMObjectIF instance representing the referenced object otherwise null
+     */
+    private TMObjectIF getObjectByItemURI(final Value value) {
 		TMObjectIF object = null;
-		if (value instanceof URI) {
+        if (value instanceof URI) {
 			try {
 				final URILocator loc = new URILocator(value.stringValue());
-				object = ((TopicMapImpl) topicMap).getWrapped().getObjectByItemIdentifier(loc);
+                TopicMapIF wrappedTM = ((TopicMapImpl) topicMap).getWrapped();
+
+                // item identifier first
+                object = wrappedTM.getObjectByItemIdentifier(loc);
+                // subject identifier second
+                if (object == null) {
+                    object = wrappedTM.getTopicBySubjectIdentifier(loc);
+                }
+                // finally subject locator
+                if (object == null) {
+                    // TODO write test for this case
+                    wrappedTM.getTopicBySubjectLocator(loc);
+                }
 			} catch (MalformedURLException e) {
-				LOGGER.warn("Item identifier is malformed.", e);
+                LOGGER.warn("Item locator is malformed.", e);
 			}
 		}
 		return object;
