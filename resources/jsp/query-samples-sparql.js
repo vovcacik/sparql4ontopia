@@ -74,7 +74,7 @@ function insertExample(exName) {
       '}\n';
     } else if (exName == "exShakespeareBasedWorksDistinct") {
       document.queryform.query.value =
-      '# Source work is omitted from results to ilustrate distinct. \n' +
+      '# Source work is omitted from results to illustrate distinct. \n' +
       'PREFIX o: <http://psi.ontopedia.net/>\n' +
       'SELECT DISTINCT ?Composer ?Work\n' +
       'WHERE {\n' +
