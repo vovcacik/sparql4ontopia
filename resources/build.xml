@@ -34,8 +34,8 @@
 		
 	  <target name="plugin" depends="jar" description="Copy the plugin to ontopia" >
 	  	<copy todir="${ontopia_home}\apache-tomcat\common\lib">
-	      <fileset dir=".">
-	        <include name="${jar}\${plugin}"/>
+	      <fileset dir="${jar}">
+	        <include name="${plugin}"/>
     	  </fileset>
 	    </copy>
 	  </target>
