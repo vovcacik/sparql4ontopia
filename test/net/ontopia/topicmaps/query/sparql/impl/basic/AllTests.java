@@ -2,7 +2,7 @@ package net.ontopia.topicmaps.query.sparql.impl.basic;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import net.ontopia.topicmaps.query.sparql.impl.util.SparqlTurtleResultHandlerTest;
+import net.ontopia.topicmaps.query.sparql.impl.sesame.SparqlTurtleResultHandlerTest;
 
 public class AllTests {
 
