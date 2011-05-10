@@ -7,7 +7,6 @@ import net.ontopia.infoset.impl.basic.URILocator;
 import net.ontopia.topicmaps.core.TMObjectIF;
 import net.ontopia.topicmaps.core.TopicMapIF;
 import net.ontopia.topicmaps.impl.tmapi2.TopicMapImpl;
-import net.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler;
 
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;

@@ -3,7 +3,6 @@ package net.ontopia.topicmaps.query.sparql.impl.basic;
 import java.util.List;
 
 import net.ontopia.topicmaps.query.core.QueryResultIF;
-import net.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler;
 
 /**
  * Abstract class providing basic implementation of some methods used in {@link QueryResultIF}.
