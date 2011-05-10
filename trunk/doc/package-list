@@ -1,0 +1,3 @@
+net.ontopia.topicmaps.query.sparql.impl.basic
+net.ontopia.topicmaps.query.sparql.impl.sesame
+net.ontopia.topicmaps.query.sparql.impl.util
