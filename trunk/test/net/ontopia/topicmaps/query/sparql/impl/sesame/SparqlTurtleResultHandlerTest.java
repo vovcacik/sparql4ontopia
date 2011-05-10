@@ -1,4 +1,4 @@
-package net.ontopia.topicmaps.query.sparql.impl.util;
+package net.ontopia.topicmaps.query.sparql.impl.sesame;
 
 import java.util.ArrayList;
 
