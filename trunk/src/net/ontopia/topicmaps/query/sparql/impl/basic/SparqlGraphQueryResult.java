@@ -2,7 +2,6 @@ package net.ontopia.topicmaps.query.sparql.impl.basic;
 
 import java.util.List;
 
-import net.ontopia.topicmaps.query.sparql.impl.util.OntopiaResultHandler;
 
 import org.apache.commons.lang.StringEscapeUtils;
 

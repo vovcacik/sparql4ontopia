@@ -1,8 +1,7 @@
-package net.ontopia.topicmaps.query.sparql.impl.util;
+package net.ontopia.topicmaps.query.sparql.impl.basic;
 
 import java.util.List;
 
-import net.ontopia.topicmaps.query.sparql.impl.basic.AbstractQueryResult;
 
 /**
  * Defines interface which any RDF result handler class should implement in order to be usable by

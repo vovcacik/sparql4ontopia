@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import net.ontopia.topicmaps.query.sparql.impl.basic.OntopiaResultHandler;
+
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;

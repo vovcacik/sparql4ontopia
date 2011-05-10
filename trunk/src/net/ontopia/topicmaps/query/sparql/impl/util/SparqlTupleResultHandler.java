@@ -3,6 +3,8 @@ package net.ontopia.topicmaps.query.sparql.impl.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.ontopia.topicmaps.query.sparql.impl.basic.OntopiaResultHandler;
+
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQueryResultHandler;
 import org.openrdf.query.TupleQueryResultHandlerException;
