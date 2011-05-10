@@ -13,8 +13,8 @@ import net.ontopia.topicmaps.query.core.ParsedQueryIF;
 import net.ontopia.topicmaps.query.core.QueryProcessorIF;
 import net.ontopia.topicmaps.query.core.QueryResultIF;
 import net.ontopia.topicmaps.query.impl.basic.QueryTracer;
-import net.ontopia.topicmaps.query.sparql.impl.util.SparqlTupleResultHandler;
-import net.ontopia.topicmaps.query.sparql.impl.util.SparqlTurtleResultHandler;
+import net.ontopia.topicmaps.query.sparql.impl.sesame.SparqlTupleResultHandler;
+import net.ontopia.topicmaps.query.sparql.impl.sesame.SparqlTurtleResultHandler;
 
 import org.openrdf.query.GraphQuery;
 import org.openrdf.query.MalformedQueryException;

@@ -11,7 +11,7 @@ import net.ontopia.topicmaps.query.core.InvalidQueryException;
 import net.ontopia.topicmaps.query.core.ParsedQueryIF;
 import net.ontopia.topicmaps.query.core.QueryProcessorIF;
 import net.ontopia.topicmaps.query.core.QueryResultIF;
-import net.ontopia.topicmaps.query.sparql.impl.util.SparqlTurtleResultHandler;
+import net.ontopia.topicmaps.query.sparql.impl.sesame.SparqlTurtleResultHandler;
 import net.ontopia.topicmaps.utils.ltm.LTMTopicMapReader;
 
 import org.junit.After;

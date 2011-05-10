@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
+import net.ontopia.topicmaps.query.sparql.impl.sesame.SparqlTurtleResultHandler;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
