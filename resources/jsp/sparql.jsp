@@ -14,6 +14,26 @@ queries:</p>
   if (tmid.equals("ItalianOpera.ltm")) {
 %>
     <option value="">Example queries:</option>
+    <option value="exPucciniSparql">Puccini's operas</option>
+    <option value="exPucciniSortedSparql">Puccini's operas (sorted)</option>
+    <option value="exShakespeareSparqlCorrect">Composers inspired by Shakespeare (Correct)</option>
+    <option value="exShakespeareSparqlBroken">Composers inspired by Shakespeare (Broken)</option>
+    <option value="exShakespeareSparqlFixed">Composers inspired by Shakespeare (Fixed)</option>
+    <option value="exBornDiedSparql">Born and died in the same place</option>
+    <option value="exComposersSparql">Most prolific composers</option>
+    <option value="exMeccaSparql">Cities with the most premieres</option>
+    <option value="exTheatresByPremiereSparql">Theatres with the most premieres</option>
+    <option value="exOperasByPremiereDateSparql">Operas by premiere date (paged)</option>
+    <option value="exEnglishTitlesSparql">Operas that have English titles</option>
+    <option value="exSuicidesSparql">Suicides (incomplete data)</option>
+    <option value="exSettingsByCountrySparql">Settings of operas by country</option>
+    <option value="exNaryAriasSparql">Arias sung by more than one person</option>
+    <option value="exInspiredBySparql">"Inspired by" as inference rule</option>
+    <option value="exBibliographySparql">Subtle bibliography query</option>
+    <option value="exRecordingsSparql">Audio recordings</option>
+    <option value="exNoDramatisPersonaeSparql">Operas with no dramatis personae</option>
+    <option value="exNoVoiceTypeSparql">Operas with missing voice types</option>
+    <option value="">-------------------------------------</option>
     <option value="exWerner">Werner's works</option>
     <option value="exWernerBirthday">Werner's birthday</option>
     <option value="exPucciniWorks">Works composed by Puccini (no prefix)</option>
