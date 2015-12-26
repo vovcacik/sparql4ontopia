@@ -1,0 +1,1 @@
+SPARQL query language plugin for Ontopia Knowledge Suite.
